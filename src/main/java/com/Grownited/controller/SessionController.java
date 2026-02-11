@@ -7,7 +7,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.Grownited.entity.UserDetailsEntity;
 import com.Grownited.entity.UserEntity;
+import com.Grownited.repository.UserDetailsRepositary;
 import com.Grownited.repository.UserRepository;
 
 @Controller
@@ -15,6 +17,9 @@ public class SessionController {
 	
 	@Autowired
 	UserRepository userRepository;
+	
+	@Autowired
+	UserDetailsRepositary userDetailsRepositary;
 	
 	@GetMapping("/signup")
 	public String openSignupPage() {
@@ -46,7 +51,7 @@ public class SessionController {
 	}
 	
 	@PostMapping("/register")
-	public String register(UserEntity userEntity) {
+	public String register(UserEntity userEntity,UserDetailsEntity userDetailsEntity) {
 		
 		System.out.println("First Name: "+userEntity.getFirst_name());
 		System.out.println("Last Name: "+userEntity.getLast_name());
@@ -57,6 +62,7 @@ public class SessionController {
 		userEntity.setCreated_at(LocalDateTime.now());
 		
 		userRepository.save(userEntity);
+		userDetailsRepositary.save(userDetailsEntity);
 		return "Login";
 	}
 	

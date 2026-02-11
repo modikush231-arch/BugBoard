@@ -28,7 +28,7 @@ public class UserEntity {
 	private String otp;
 	private LocalDateTime created_at;
 	private Boolean is_active;
-	private String profile_pic;
+	private String profilePicURL;
 	private String gender;
 	
 	public Integer getUserId() {
@@ -62,6 +62,14 @@ public class UserEntity {
 		this.password_hash = password_hash;
 	}
 
+	
+	
+	public String getProfilePicURL() {
+		return profilePicURL;
+	}
+	public void setProfilePicURL(String profilePicURL) {
+		this.profilePicURL = profilePicURL;
+	}
 	public String getRole() {
 		return role;
 	}
@@ -94,12 +102,7 @@ public class UserEntity {
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
 	}
-	public String getProfile_pic() {
-		return profile_pic;
-	}
-	public void setProfile_pic(String profile_pic) {
-		this.profile_pic = profile_pic;
-	}
+
 	public String getGender() {
 		return gender;
 	}

@@ -52,7 +52,6 @@ public void setDocURL(String docURL) {
 	this.docURL = docURL;
 }
 
-
 public Integer getEstimatedHours() {
 	return estimatedHours;
 }

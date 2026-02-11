@@ -26,7 +26,7 @@
     }
     .signup-card {
         width: 100%;
-        max-width: 450px;
+        max-width: 500px;
         padding: 25px;
         border-radius: 10px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -217,6 +217,7 @@
         <div class="step active" id="step1Indicator">1</div>
         <div class="step" id="step2Indicator">2</div>
         <div class="step" id="step3Indicator">3</div>
+        <div class="step" id="step4Indicator">4</div>
     </div>
     
     <!-- Added logo and description -->
@@ -227,8 +228,8 @@
         <h2 class="mb-2">Create Your Account</h2>
         <p class="text-muted">Join our bug tracking community</p>
     </div>
-
-    <form action="register" method="post" id="signupForm" onsubmit="return validateForm(event)">
+    
+   <form action="register" method="post" id="signupForm" onsubmit="return validateForm(event)">
         
         <!-- Step 1: Personal Information -->
         <div class="form-step active" id="step1Form">
@@ -250,7 +251,7 @@
                 <div class="invalid-feedback">Please enter your last name (2-50 characters)</div>
             </div>
 
-            <!-- Gender Field (added with icon) -->
+            <!-- Gender Field -->
             <div class="mb-3">
                 <label class="form-label"><i class="bi bi-gender-ambiguous me-2"></i>Gender</label>
                 <select id="gender" name="gender" class="form-select" required>
@@ -262,6 +263,22 @@
                 <div class="invalid-feedback">Please select your gender.</div>
             </div>
 
+            <!-- BirthYear Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-calendar me-2"></i>Birth Year</label>
+                <select id="birthYear" name="birthYear" class="form-select" required>
+                    <option value="" disabled selected>Select your birth year</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+                <div class="invalid-feedback">Please select your birth year.</div>
+            </div>
+
+ <!-- Profile Pic URL -->
+            <div class="mb-3">
+                <label class="form-label">Profile Picture URL</label> <input
+                    type="file" name="profilePicURL" class="form-control">
+            </div>
+
             <!-- Navigation -->
             <div class="form-navigation">
                 <button type="button" class="btn btn-outline-secondary" disabled>Previous</button>
@@ -269,8 +286,51 @@
             </div>
         </div>
         
-        <!-- Step 2: Contact Information -->
+        <!-- Step 2: Education & Role -->
         <div class="form-step" id="step2Form">
+            <h5 class="mb-3"><i class="bi bi-mortarboard me-2"></i>Education & Role</h5>
+
+            <!-- Qualification Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-award me-2"></i>Qualification</label>
+                <select id="qualification" name="qualification" class="form-select" required>
+                    <option value="" disabled selected>Select your qualification</option>
+                    <option value="High School">High School</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Bachelor's Degree">Bachelor's Degree</option>
+                    <option value="Master's Degree">Master's Degree</option>
+                    <option value="PhD">PhD</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="invalid-feedback">Please select your qualification.</div>
+            </div>
+
+            <!-- UserType Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-person-workspace me-2"></i>User Type</label>
+                <select id="userTypeId" name="userTypeId" class="form-select" required>
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="3">Developer</option>
+                    <option value="4">Tester</option>
+                    <option value="2">Project Manager</option>   
+                    <option value="1">System Admin</option>        
+                </select>
+                <div class="invalid-feedback">Please select your user type.</div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="form-navigation">
+                <button type="button" class="btn btn-outline-secondary" onclick="goToStep(1)">
+                    <i class="bi bi-arrow-left me-1"></i> Previous
+                </button>
+                <button type="button" class="btn btn-primary" onclick="validateAndGoToStep(3)">
+                    Next <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Contact Information -->
+        <div class="form-step" id="step3Form">
             <h5 class="mb-3"><i class="bi bi-telephone me-2"></i>Contact Information</h5>
 
             <!-- Mobile -->
@@ -289,19 +349,54 @@
                 <div class="invalid-feedback">Please enter a valid email address</div>
             </div>
 
+            <!-- City Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-building me-2"></i>City</label>
+                <input type="text" id="city" name="city" class="form-control" 
+                       autocomplete="address-level2" required>
+                <div class="invalid-feedback">Please enter your city.</div>
+            </div>
+
+            <!-- State Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-geo-alt me-2"></i>State</label>
+                <input type="text" id="state" name="state" class="form-control" 
+                       autocomplete="address-level1" required>
+                <div class="invalid-feedback">Please enter your state.</div>
+            </div>
+
+            <!-- Country Field -->
+            <div class="mb-3">
+                <label class="form-label"><i class="bi bi-globe me-2"></i>Country</label>
+                <select id="country" name="country" class="form-select" required>
+                    <option value="" disabled selected>Select your country</option>
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="India">India</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Germany">Germany</option>
+                    <option value="France">France</option>
+                    <option value="Japan">Japan</option>
+                    <option value="China">China</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="invalid-feedback">Please select your country.</div>
+            </div>
+
             <!-- Navigation -->
             <div class="form-navigation">
-                <button type="button" class="btn btn-outline-secondary" onclick="goToStep(1)">
+                <button type="button" class="btn btn-outline-secondary" onclick="goToStep(2)">
                     <i class="bi bi-arrow-left me-1"></i> Previous
                 </button>
-                <button type="button" class="btn btn-primary" onclick="validateAndGoToStep(3)">
+                <button type="button" class="btn btn-primary" onclick="validateAndGoToStep(4)">
                     Next <i class="bi bi-arrow-right ms-1"></i>
                 </button>
             </div>
         </div>
         
-        <!-- Step 3: Security -->
-        <div class="form-step" id="step3Form">
+        <!-- Step 4: Security -->
+        <div class="form-step" id="step4Form">
             <h5 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Security Settings</h5>
 
             <!-- Password -->
@@ -351,7 +446,7 @@
 
             <!-- Navigation -->
             <div class="form-navigation">
-                <button type="button" class="btn btn-outline-secondary" onclick="goToStep(2)">
+                <button type="button" class="btn btn-outline-secondary" onclick="goToStep(3)">
                     <i class="bi bi-arrow-left me-1"></i> Previous
                 </button>
                 <button type="submit" class="btn btn-success">
@@ -385,12 +480,30 @@
         });
         document.getElementById('currentDate').textContent = currentDate;
         
+        // Populate Birth Year dropdown (from 1950 to current year - 13)
+        const birthYearSelect = document.getElementById('birthYear');
+        const currentYear = new Date().getFullYear();
+        const startYear = 1950;
+        
+        for (let year = currentYear - 13; year >= startYear; year--) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            birthYearSelect.appendChild(option);
+        }
+        
         // Add input event listeners for validation
         const firstNameInput = document.getElementById('first_name');
         const lastNameInput = document.getElementById('last_name');
         const genderSelect = document.getElementById('gender');
+        const birthYearSelectEl = document.getElementById('birthYear');
+        const qualificationSelect = document.getElementById('qualification');
+        const userTypeSelect = document.getElementById('userType');
         const mobileInput = document.getElementById('mobile');
         const emailInput = document.getElementById('email');
+        const cityInput = document.getElementById('city');
+        const stateInput = document.getElementById('state');
+        const countrySelect = document.getElementById('country');
         
         // Fix for autocomplete issue - prevent browser autofill from mixing data
         firstNameInput.addEventListener('input', function() {
@@ -404,6 +517,9 @@
         });
         
         genderSelect.addEventListener('change', validateGender);
+        birthYearSelectEl.addEventListener('change', validateBirthYear);
+        qualificationSelect.addEventListener('change', validateQualification);
+        userTypeSelect.addEventListener('change', validateUserType);
         
         mobileInput.addEventListener('input', function() {
             // Allow only numbers and limit to 10 digits
@@ -414,6 +530,16 @@
         emailInput.addEventListener('input', function() {
             validateEmail();
         });
+        
+        cityInput.addEventListener('input', function() {
+            validateCity();
+        });
+        
+        stateInput.addEventListener('input', function() {
+            validateState();
+        });
+        
+        countrySelect.addEventListener('change', validateCountry);
         
         // Initialize terms checkbox validation
         document.getElementById('terms').addEventListener('change', validateTerms);
@@ -427,17 +553,19 @@
         document.getElementById('step1Form').classList.remove('active');
         document.getElementById('step2Form').classList.remove('active');
         document.getElementById('step3Form').classList.remove('active');
+        document.getElementById('step4Form').classList.remove('active');
         
         // Remove active class from all step indicators
         document.getElementById('step1Indicator').classList.remove('active', 'completed');
         document.getElementById('step2Indicator').classList.remove('active', 'completed');
         document.getElementById('step3Indicator').classList.remove('active', 'completed');
+        document.getElementById('step4Indicator').classList.remove('active', 'completed');
         
         // Show current step
         document.getElementById('step' + step + 'Form').classList.add('active');
         
         // Update step indicators
-        for (let i = 1; i <= 3; i++) {
+        for (let i = 1; i <= 4; i++) {
             const stepIndicator = document.getElementById('step' + i + 'Indicator');
             if (i < step) {
                 stepIndicator.classList.add('completed');
@@ -467,6 +595,8 @@
                 return validateStep2();
             case 3:
                 return validateStep3();
+            case 4:
+                return validateStep4();
             default:
                 return false;
         }
@@ -484,6 +614,9 @@
         // Validate gender
         if (!validateGender()) isValid = false;
         
+        // Validate birth year
+        if (!validateBirthYear()) isValid = false;
+        
         if (!isValid) {
             alert('Please fill in all required fields in Step 1 correctly.');
         }
@@ -494,11 +627,36 @@
     function validateStep2() {
         let isValid = true;
         
+        // Validate qualification
+        if (!validateQualification()) isValid = false;
+        
+        // Validate user type
+        if (!validateUserType()) isValid = false;
+        
+        if (!isValid) {
+            alert('Please fill in all required fields in Step 2 correctly.');
+        }
+        
+        return isValid;
+    }
+    
+    function validateStep3() {
+        let isValid = true;
+        
         // Validate mobile
         if (!validateMobile()) isValid = false;
         
         // Validate email
         if (!validateEmail()) isValid = false;
+        
+        // Validate city
+        if (!validateCity()) isValid = false;
+        
+        // Validate state
+        if (!validateState()) isValid = false;
+        
+        // Validate country
+        if (!validateCountry()) isValid = false;
         
         // Check if email is being used in other fields (common autofill issue)
         const firstName = document.getElementById('first_name').value;
@@ -511,13 +669,13 @@
         }
         
         if (!isValid) {
-            alert('Please fill in all required fields in Step 2 correctly.');
+            alert('Please fill in all required fields in Step 3 correctly.');
         }
         
         return isValid;
     }
     
-    function validateStep3() {
+    function validateStep4() {
         let isValid = true;
         
         // Validate password strength
@@ -602,6 +760,53 @@
         }
     }
     
+    function validateBirthYear() {
+        const birthYear = document.getElementById('birthYear');
+        if (birthYear.value === '') {
+            birthYear.classList.add('is-invalid');
+            birthYear.classList.remove('is-valid');
+            return false;
+        } else {
+            // Additional validation: age should be at least 13
+            const selectedYear = parseInt(birthYear.value);
+            const currentYear = new Date().getFullYear();
+            if (currentYear - selectedYear < 13) {
+                birthYear.classList.add('is-invalid');
+                birthYear.classList.remove('is-valid');
+                return false;
+            }
+            birthYear.classList.remove('is-invalid');
+            birthYear.classList.add('is-valid');
+            return true;
+        }
+    }
+    
+    function validateQualification() {
+        const qualification = document.getElementById('qualification');
+        if (qualification.value === '') {
+            qualification.classList.add('is-invalid');
+            qualification.classList.remove('is-valid');
+            return false;
+        } else {
+            qualification.classList.remove('is-invalid');
+            qualification.classList.add('is-valid');
+            return true;
+        }
+    }
+    
+    function validateUserType() {
+        const userType = document.getElementById('userType');
+        if (userType.value === '') {
+            userType.classList.add('is-invalid');
+            userType.classList.remove('is-valid');
+            return false;
+        } else {
+            userType.classList.remove('is-invalid');
+            userType.classList.add('is-valid');
+            return true;
+        }
+    }
+    
     function validateMobile() {
         const mobile = document.getElementById('mobile');
         const mobileRegex = /^[0-9]{10}$/;
@@ -626,6 +831,49 @@
         } else {
             email.classList.remove('is-invalid');
             email.classList.add('is-valid');
+            return true;
+        }
+    }
+    
+    function validateCity() {
+        const city = document.getElementById('city');
+        const cityValue = city.value.trim();
+        
+        if (cityValue === '' || cityValue.length < 2 || cityValue.length > 100) {
+            city.classList.add('is-invalid');
+            city.classList.remove('is-valid');
+            return false;
+        }
+        
+        city.classList.remove('is-invalid');
+        city.classList.add('is-valid');
+        return true;
+    }
+    
+    function validateState() {
+        const state = document.getElementById('state');
+        const stateValue = state.value.trim();
+        
+        if (stateValue === '' || stateValue.length < 2 || stateValue.length > 100) {
+            state.classList.add('is-invalid');
+            state.classList.remove('is-valid');
+            return false;
+        }
+        
+        state.classList.remove('is-invalid');
+        state.classList.add('is-valid');
+        return true;
+    }
+    
+    function validateCountry() {
+        const country = document.getElementById('country');
+        if (country.value === '') {
+            country.classList.add('is-invalid');
+            country.classList.remove('is-valid');
+            return false;
+        } else {
+            country.classList.remove('is-invalid');
+            country.classList.add('is-valid');
             return true;
         }
     }
@@ -706,7 +954,7 @@
         event.preventDefault();
         
         // Validate all steps before submission
-        if (!validateStep1() || !validateStep2() || !validateStep3()) {
+        if (!validateStep1() || !validateStep2() || !validateStep3() || !validateStep4()) {
             // Show the first step with errors
             if (!validateStep1()) {
                 showStep(1);
@@ -714,6 +962,8 @@
                 showStep(2);
             } else if (!validateStep3()) {
                 showStep(3);
+            } else if (!validateStep4()) {
+                showStep(4);
             }
             alert('Please fix all errors before submitting.');
             return false;

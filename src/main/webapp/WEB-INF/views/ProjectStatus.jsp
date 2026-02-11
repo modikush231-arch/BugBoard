@@ -172,7 +172,7 @@
     <div class="sidebar" id="sidebar">
         <div class="nav flex-column">
             <a class="nav-link" href="adminDashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
-            <a class="nav-link" href="projects"><i class="bi bi-kanban"></i> Projects</a>
+            <a class="nav-link" href="projectList"><i class="bi bi-kanban"></i> Projects</a>
             <a class="nav-link active" href="projectStatus"><i class="bi bi-list-check"></i> Project Status</a>
             <a class="nav-link" href="users"><i class="bi bi-people"></i> Users</a>
             <a class="nav-link" href="bugs"><i class="bi bi-bug"></i> Bugs</a>

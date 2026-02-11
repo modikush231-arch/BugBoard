@@ -294,7 +294,7 @@
         <div class="sidebar-content">
             <div class="nav flex-column">
                 <a class="nav-link active" href="adminDashboard"><i class="bi bi-speedometer2"></i> Dashboard</a>
-                <a class="nav-link" href="projects"><i class="bi bi-kanban"></i> Projects</a>
+                <a class="nav-link" href="projectList"><i class="bi bi-kanban"></i> Projects</a>
                 <a class="nav-link" href="projectStatus"><i class="bi bi-list-check"></i> Project Status</a>
                 <a class="nav-link" href="users">
                     <i class="bi bi-people"></i> Users
@@ -425,7 +425,7 @@
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6">
-                                <div class="quick-action-card glass-card" onclick="location.href='addProject'">
+                                <div class="quick-action-card glass-card" onclick="location.href='projects'">
                                     <div class="action-icon"><i class="bi bi-plus-lg"></i></div>
                                     <div class="fw-medium text-white">New Project</div>
                                 </div>
