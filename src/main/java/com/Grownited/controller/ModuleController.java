@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.Grownited.entity.ModuleEntity;
+import com.Grownited.entity.ProjectEntity;
+import com.Grownited.entity.ProjectStatusEntity;
 import com.Grownited.repository.ModuleRepositary;
+import com.Grownited.repository.ProjectRepository;
+import com.Grownited.repository.ProjectStatusRepositary;
 
 @Controller
 public class ModuleController {
@@ -19,15 +23,29 @@ public class ModuleController {
 	@Autowired
 	ModuleRepositary moduleRepositary;
 	
+	@Autowired
+	ProjectRepository projectRepository;
+	
+	@Autowired
+	ProjectStatusRepositary projectStatusRepositary;
+	
+	
 	@GetMapping("moduleList")
 	public String Module(Model model) {
 	List<ModuleEntity> moduleList=moduleRepositary.findAll();
+	List<ProjectEntity> projectList=projectRepository.findAll();
+	List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+
+
 	model.addAttribute("moduleList",moduleList);
+	model.addAttribute("projectList", projectList);
+	model.addAttribute("statusList", statusList);
 		return "Module";
 	}
 	
 	@PostMapping("saveModule")
 	public String SaveModule(ModuleEntity moduleEntity) {
+		moduleEntity.setTotalUtilizedHours(0);
 		moduleRepositary.save(moduleEntity);
 		return "redirect:/moduleList";
 	}
@@ -40,6 +58,10 @@ public class ModuleController {
 
 	        if (moduleOpt.isPresent()) {
 	            model.addAttribute("module", moduleOpt.get());
+	            List<ProjectEntity> projectList = projectRepository.findAll();
+	            List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+	            model.addAttribute("projectList", projectList);
+	            model.addAttribute("statusList",statusList);
 	            return "ViewModule"; // JSP page name: ViewModule.jsp
 	        } else {
 	            // handle module not found

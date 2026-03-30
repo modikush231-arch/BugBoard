@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import com.Grownited.entity.ModuleEntity;
 import com.Grownited.entity.ProjectEntity;
+import com.Grownited.entity.ProjectStatusEntity;
 import com.Grownited.entity.TaskEntity;
+import com.Grownited.repository.ModuleRepositary;
+import com.Grownited.repository.ProjectRepository;
+import com.Grownited.repository.ProjectStatusRepositary;
 import com.Grownited.repository.TaskRepository;
 
-import jakarta.persistence.GeneratedValue;
 
 @Controller
 public class TaskController {
@@ -23,15 +26,31 @@ public class TaskController {
 	@Autowired
 	TaskRepository taskRepository;
 	
+	@Autowired
+	ProjectRepository projectRepository;
+	
+	@Autowired
+	ProjectStatusRepositary projectStatusRepositary;
+	
+	@Autowired
+	ModuleRepositary moduleRepositary;
+	
 	@GetMapping("taskList")
 	public String Module(Model model) {
 	List<TaskEntity> taskList=taskRepository.findAll();
+	List<ProjectEntity> projectList=projectRepository.findAll();
+	List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+	List<ModuleEntity> moduleList = moduleRepositary.findAll();
 	model.addAttribute("taskList",taskList);
+	model.addAttribute("projectList", projectList);
+	model.addAttribute("statusList", statusList);
+	model.addAttribute("moduleList",moduleList);
 		return "Task";
 	}
 	
 	@PostMapping("saveTask")
 	public String SaveTask(TaskEntity taskEntity) {
+		taskEntity.setTotalUtilizedHours(0);
 		taskRepository.save(taskEntity);
 		return "redirect:/taskList";
 	}
@@ -42,6 +61,12 @@ public class TaskController {
 
         if (taskOpt.isPresent()) {
             model.addAttribute("task", taskOpt.get());
+            List<ProjectEntity> projectList = projectRepository.findAll();
+            List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+            List<ModuleEntity> moduleList = moduleRepositary.findAll();            
+            model.addAttribute("projectList", projectList);
+            model.addAttribute("statusList",statusList);
+            model.addAttribute("moduleList",moduleList);
             return "ViewTask"; 
         }
 

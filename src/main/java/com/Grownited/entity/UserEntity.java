@@ -23,13 +23,14 @@ public class UserEntity {
 	private String last_name;
 	private String email;
 	private String mobile;
-	private String password_hash;
+	private String password;
 	private String role;
 	private String otp;
 	private LocalDateTime created_at;
 	private Boolean is_active;
 	private String profilePicURL;
 	private String gender;
+	
 	
 	public Integer getUserId() {
 		return userId;
@@ -55,15 +56,14 @@ public class UserEntity {
 	public void setEmail(String email) {
 		this.email = email;
 	}
-	public String getPassword_hash() {
-		return password_hash;
-	}
-	public void setPassword_hash(String password_hash) {
-		this.password_hash = password_hash;
-	}
+	
 
-	
-	
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	public String getProfilePicURL() {
 		return profilePicURL;
 	}

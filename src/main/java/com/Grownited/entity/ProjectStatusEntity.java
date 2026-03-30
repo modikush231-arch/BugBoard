@@ -12,15 +12,16 @@ public class ProjectStatusEntity {
 	
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private Integer projectStatusID;
+	private Integer projectStatusId;
 	private String status;
 	private String description;
 	
-	public Integer getProjectStatusID() {
-		return projectStatusID;
+
+	public Integer getProjectStatusId() {
+		return projectStatusId;
 	}
-	public void setProjectStatusID(Integer projectStatusID) {
-		this.projectStatusID = projectStatusID;
+	public void setProjectStatusId(Integer projectStatusId) {
+		this.projectStatusId = projectStatusId;
 	}
 	public String getStatus() {
 		return status;

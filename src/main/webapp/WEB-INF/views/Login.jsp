@@ -123,7 +123,7 @@
         <p class="text-center tagline">Track bugs efficiently with our dashboard</p>
     </div>
 
-    <form action="LoginServlet" method="post">
+    <form action="authenticate" method="post">
 
         <!-- Email -->
         <div class="mb-3">
@@ -135,7 +135,7 @@
         <div class="mb-3">
             <label class="form-label fw-semibold"><i class="bi bi-lock me-2"></i>Password</label>
             <div class="input-group">
-                <input type="password" class="form-control" id="password" name="password_hash" 
+                <input type="password" class="form-control" id="password" name="password" 
                        placeholder="Enter your password" required>
                 <span class="input-group-text password-toggle" id="togglePassword">
                     <i class="bi bi-eye-slash" id="eyeIcon"></i>
@@ -146,7 +146,7 @@
         <!-- Remember Me & Forgot Password -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe">
+                <input class="form-check-input" type="checkbox" id="rememberMe" name="rememberMe" required>
                 <label class="form-check-label"><i class="bi bi-check2-square me-1"></i>Remember Me</label>
             </div>
             <div>
@@ -161,11 +161,7 @@
             </button>
         </div>
 
-        <!-- Sign Up Link -->
-        <div class="text-center pt-3 border-top">
-            <p class="mb-2"><i class="bi bi-person-plus me-1"></i> Don't have an account?</p>
-            <a href="signup" class="fw-semibold text-decoration-none">Create Account</a>
-        </div>
+  
     </form>
 </div>
 

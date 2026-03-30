@@ -7,5 +7,5 @@ import com.Grownited.entity.UserDetailsEntity;
 
 @Repository
 public interface UserDetailsRepositary extends JpaRepository<UserDetailsEntity, Integer> {
-
+	   UserDetailsEntity findByUserId(String userId);
 }

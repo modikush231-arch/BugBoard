@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.Grownited.entity.ProjectEntity;
+import com.Grownited.entity.ProjectStatusEntity;
 import com.Grownited.repository.ProjectRepository;
 import com.Grownited.repository.ProjectStatusRepositary;
 
@@ -21,19 +22,28 @@ public class ProjectController {
 	@Autowired
 	ProjectRepository projectRepository;
 	
+	@Autowired
+	ProjectStatusRepositary projectStatusRepositary;
 	
 	@GetMapping("projectList")
 	public String Project(Model model) {
 		List<ProjectEntity> projectList=projectRepository.findAll();
+		List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
 		model.addAttribute("projectList",projectList);
+		 model.addAttribute("statusList", statusList);
 		return "Project";
 	}
-	
 	@PostMapping("saveProject")
 	public String SaveProject(ProjectEntity projectEntity) {
-		projectRepository.save(projectEntity);
 
-		return "redirect:/projectList";
+	    projectEntity.setTotalUtilizedHours(0);
+
+	    // default status = Not Started
+	    projectEntity.setProjectStatusId(2);
+
+	    projectRepository.save(projectEntity);
+
+	    return "redirect:/projectList";
 	}
 	   @GetMapping("/viewProject/{projectId}")
 	    public String viewProject(@PathVariable Integer projectId, Model model) {
@@ -41,6 +51,9 @@ public class ProjectController {
 
 	        if (projectOpt.isPresent()) {
 	            model.addAttribute("project", projectOpt.get());
+	            // Add this line to pass status list
+	            List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+	            model.addAttribute("statusList", statusList);
 	            return "ViewProject"; // ViewProject.jsp
 	        }
 

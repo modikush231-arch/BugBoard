@@ -1,84 +1,108 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Module Management</title>
 
-<!-- Bootstrap 5 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<%-- Set page title and active sidebar item --%>
+<c:set var="pageTitle" value="Module Management" scope="request" />
+<c:set var="activeNav" value="modules" scope="request" />
 
-<style>
-    body {
-        background-color: #f4f6f9;
-    }
-    .card {
-        border-radius: 12px;
-    }
-    .btn-custom {
-        min-width: 80px;
-    }
-</style>
-</head>
+<%-- Include global header (opens <html>, <head>, navbar) --%>
+<jsp:include page="adminheader.jsp" />
 
-<body>
+<%-- Include sidebar --%>
+<jsp:include page="adminsidebar.jsp" />
 
-<div class="container mt-5">
+    <%-- MAIN CONTENT (starts with .main-content) --%>
+    <main class="main-content" id="mainContent">
 
-    <!-- Page Title -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 class="fw-bold text-primary">Module Management</h3>
-        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#moduleModal">
-            + Add New Module
-        </button>
-    </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h2 text-white mb-0">
+                <i class="bi bi-collection me-2" style="color: var(--primary-color);"></i>Module Management
+            </h1>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#moduleModal">
+                <i class="bi bi-plus-circle me-2"></i>Add New Module
+            </button>
+        </div>
 
-    <!-- Search Box -->
-    <div class="mb-3 d-flex justify-content-end">
-        <input type="text" id="searchInput" class="form-control w-50" placeholder="Search Modules..." onkeyup="filterTable()">
-    </div>
+        <!-- Search Box -->
+        <div class="mb-4 d-flex justify-content-end">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" 
+                           class="form-control bg-transparent text-white border-secondary"
+                           placeholder="Search modules..." 
+                           onkeyup="filterTable()">
+                </div>
+            </div>
+        </div>
 
-    <!-- Module Table -->
-    <div class="card shadow-sm">
-        <div class="card-body">
+        <!-- Module Table Card -->
+        <div class="glass-card p-4">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle text-center" id="moduleTable">
-                    <thead class="table-dark">
+                <table class="table table-hover mb-0" id="moduleTable" style="--bs-table-bg: transparent;">
+                    <thead>
                         <tr>
-                            <th>SrNo</th>
-                            <th>Module Name</th>
-                            
-                            <th>Description</th>
-                            <th>Doc URL</th>
-                          
-                            <th>Actions</th>
+                            <th class="text-secondary">SrNo</th>
+                            <th class="text-secondary">Module Name</th>
+                            <th class="text-secondary">Project Name</th>
+                            <th class="text-secondary">Description</th>
+                            <th class="text-secondary">Doc URL</th>
+                            <th class="text-secondary">Status</th>
+                            <th class="text-secondary">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <c:forEach var="module" items="${moduleList}" varStatus="status">
                             <tr>
-                                <td>${status.index + 1}</td>
-                                <td>${module.moduleName}</td>
-                               
-                         
-                                <td>${module.description}</td>
+                                <td class="text-white">${status.index + 1}</td>
+                                <td class="text-white fw-medium">${module.moduleName}</td>
+                                <td class="text-white fw-medium">
+								    <c:forEach var="title" items="${projectList}">
+								        <c:if test="${title.projectId == module.projectId}">
+								            ${title.title}
+								        </c:if>
+								    </c:forEach>
+								</td>
+                                <td class="text-white-50">${module.description}</td>
                                 <td>
                                     <c:choose>
                                         <c:when test="${not empty module.docURL}">
-                                            <a href="${module.docURL}" target="_blank" class="btn btn-sm btn-info text-white">View Doc</a>
+                                            <a href="${module.docURL}" target="_blank" 
+                                               class="btn btn-sm btn-info text-white">
+                                                <i class="bi bi-file-earmark-text me-1"></i>View Doc
+                                            </a>
                                         </c:when>
                                         <c:otherwise>
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-secondary">N/A</span>
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-                              
+								 <td class="text-white fw-medium">								
+								    <c:forEach var="statusEntity" items="${statusList}">								    
+								        <c:if test="${statusEntity.projectStatusId == module.status}">								        
+								            ${statusEntity.status}								            
+								        </c:if>								        
+								    </c:forEach>								
+								</td>
+
                                 <td>
-                                    <a href="viewModule/${module.moduleId}" class="btn btn-sm btn-primary btn-custom">View</a>
-                                    <a href="editModule/${module.moduleId}" class="btn btn-sm btn-warning btn-custom">Update</a>
-                                    <a href="deleteModule/${module.moduleId}" class="btn btn-sm btn-danger btn-custom" onclick="return confirm('Are you sure you want to delete this module?')">Delete</a>
+                                    <div class="d-flex gap-2 justify-content">
+                                        <a href="viewModule/${module.moduleId}" 
+                                           class="btn btn-sm btn-primary btn-custom">
+                                            <i class="bi bi-eye"></i> View
+                                        </a>
+                                        <a href="editModule/${module.moduleId}" 
+                                           class="btn btn-sm btn-warning btn-custom">
+                                            <i class="bi bi-pencil"></i> Update
+                                        </a>
+                                        <a href="deleteModule/${module.moduleId}" 
+                                           class="btn btn-sm btn-danger btn-custom"
+                                           onclick="return confirm('Are you sure you want to delete this module?')">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -86,71 +110,118 @@
                 </table>
             </div>
         </div>
-    </div>
 
-</div>
+        <!-- Add / Update Modal (Dark Theme) -->
+        <div class="modal fade" id="moduleModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content bg-dark text-white border-secondary">
 
-<!-- Add / Update Modal -->
-<div class="modal fade" id="moduleModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Add / Update Module</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-
-            <form action="saveModule" method="post">
-                <div class="modal-body">
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-                            <label class="form-label">Module Name</label>
-                            <input type="text" name="moduleName" class="form-control" required>
-                        </div>
-    					<div class="col-md-12">
-                            <label class="form-label">Description</label>
-                            <textarea name="description" class="form-control" rows="3"></textarea>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Document URL</label>
-                            <input type="url" name="docURL" class="form-control">
-                        </div>
-
-
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title text-white">
+                            <i class="bi bi-collection-fill me-2" style="color: var(--primary-color);"></i>Add Module
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" 
+                                data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
 
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Save Module</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                </div>
-            </form>
+                    <form action="saveModule" method="post">
+                        <div class="modal-body">
+                            <div class="row g-3">
 
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary">Module Name</label>
+                                    <input type="text" name="moduleName" 
+                                           class="form-control bg-transparent text-white border-secondary" required>
+                                </div>
+                                
+                                <div class="col-md-6">
+								    <label class="form-label text-secondary">Project Name</label>
+								
+								<select name="projectId"
+								        class="form-select bg-dark text-white border-secondary"
+								        required>
+								
+								    <option value="">Select Project Name</option>
+								
+								    <c:forEach var="title" items="${projectList}">
+								        <option value="${title.projectId}">
+								            ${title.title}
+								        </option>
+								    </c:forEach>
+								
+								</select>
+								
+								</div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label text-secondary">Description</label>
+                                    <textarea name="description" 
+                                              class="form-control bg-transparent text-white border-secondary" 
+                                              rows="3"></textarea>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label class="form-label text-secondary">Document URL</label>
+                                    <input type="url" name="docURL" 
+                                           class="form-control bg-transparent text-white border-secondary">
+                                </div>
+								
+								<div class="col-md-6">
+								    <label class="form-label text-secondary">Status</label>
+								
+								    <select name="status" class="form-select bg-dark text-white border-secondary" required>
+								
+								        <option value="">Select Status</option>
+								
+								        <c:forEach var="statusEntity" items="${statusList}">
+								            <option value="${statusEntity.projectStatusId}">
+								                ${statusEntity.status}
+								            </option>
+								        </c:forEach>
+								
+								    </select>
+								
+								</div>
+
+
+								  <div class="col-md-6">
+                                    <label class="form-label text-secondary">Estimated Hours</label>
+                                    <input type="number" name="estimatedHours" class="form-control bg-transparent text-white border-secondary" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer border-secondary">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-2"></i>Save Module
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
 
-<!-- Search Filter Script -->
+<%-- Include footer (closes .main-content, contains Bootstrap JS and common scripts) --%>
+<jsp:include page="adminfooter.jsp" />
+
+<%-- Page‑specific search filter script --%>
 <script>
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
     const table = document.getElementById("moduleTable");
     const rows = table.getElementsByTagName("tr");
 
-    for (let i = 1; i < rows.length; i++) { // skip header row
+    for (let i = 1; i < rows.length; i++) {
         const rowText = rows[i].innerText.toLowerCase();
-        if (rowText.indexOf(input) > -1) {
-            rows[i].style.display = "";
-        } else {
-            rows[i].style.display = "none";
-        }
+        rows[i].style.display = rowText.indexOf(input) > -1 ? "" : "none";
     }
 }
 </script>
 
-</body>
-</html>
+<%-- No duplicate CSS/JS – everything is provided by the global includes --%>

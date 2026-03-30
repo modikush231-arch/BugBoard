@@ -15,7 +15,7 @@ public class ProjectUserEntity {
 	private Integer projectUserId;
 	private Integer userId;
 	private Integer projectId;
-	private String assignStatus;
+	private Integer assignStatus;
 	public Integer getProjectUserId() {
 		return projectUserId;
 	}
@@ -34,11 +34,13 @@ public class ProjectUserEntity {
 	public void setProjectId(Integer projectId) {
 		this.projectId = projectId;
 	}
-	public String getAssignStatus() {
+	public Integer getAssignStatus() {
 		return assignStatus;
 	}
-	public void setAssignStatus(String assignStatus) {
+	public void setAssignStatus(Integer assignStatus) {
 		this.assignStatus = assignStatus;
 	}
+
+	
 
 }
