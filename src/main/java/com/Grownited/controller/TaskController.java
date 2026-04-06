@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.Grownited.entity.ModuleEntity;
 import com.Grownited.entity.ProjectEntity;
@@ -19,65 +20,94 @@ import com.Grownited.repository.ProjectRepository;
 import com.Grownited.repository.ProjectStatusRepositary;
 import com.Grownited.repository.TaskRepository;
 
-
 @Controller
 public class TaskController {
 
-	@Autowired
-	TaskRepository taskRepository;
-	
-	@Autowired
-	ProjectRepository projectRepository;
-	
-	@Autowired
-	ProjectStatusRepositary projectStatusRepositary;
-	
-	@Autowired
-	ModuleRepositary moduleRepositary;
-	
-	@GetMapping("taskList")
-	public String Module(Model model) {
-	List<TaskEntity> taskList=taskRepository.findAll();
-	List<ProjectEntity> projectList=projectRepository.findAll();
-	List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
-	List<ModuleEntity> moduleList = moduleRepositary.findAll();
-	model.addAttribute("taskList",taskList);
-	model.addAttribute("projectList", projectList);
-	model.addAttribute("statusList", statusList);
-	model.addAttribute("moduleList",moduleList);
-		return "Task";
-	}
-	
-	@PostMapping("saveTask")
-	public String SaveTask(TaskEntity taskEntity) {
-		taskEntity.setTotalUtilizedHours(0);
-		taskRepository.save(taskEntity);
-		return "redirect:/taskList";
-	}
-	
-	@GetMapping("/viewTask/{taskId}")
-    public String viewTask(@PathVariable Integer taskId, Model model) {
-        Optional<TaskEntity> taskOpt = taskRepository.findById(taskId);
+    @Autowired
+    TaskRepository taskRepository;
 
-        if (taskOpt.isPresent()) {
-            model.addAttribute("task", taskOpt.get());
-            List<ProjectEntity> projectList = projectRepository.findAll();
-            List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
-            List<ModuleEntity> moduleList = moduleRepositary.findAll();            
-            model.addAttribute("projectList", projectList);
-            model.addAttribute("statusList",statusList);
-            model.addAttribute("moduleList",moduleList);
-            return "ViewTask"; 
-        }
+    @Autowired
+    ProjectRepository projectRepository;
 
+    @Autowired
+    ProjectStatusRepositary projectStatusRepositary;
+
+    @Autowired
+    ModuleRepositary moduleRepositary;
+
+    @GetMapping("taskList")
+    public String taskList(Model model) {
+        List<TaskEntity> taskList = taskRepository.findAll();
+        List<ProjectEntity> projectList = projectRepository.findAll();
+        List<ProjectStatusEntity> statusList = projectStatusRepositary.findAll();
+        List<ModuleEntity> moduleList = moduleRepositary.findAll();
+        model.addAttribute("taskList", taskList);
+        model.addAttribute("projectList", projectList);
+        model.addAttribute("statusList", statusList);
+        model.addAttribute("moduleList", moduleList);
+        return "Task";
+    }
+
+    @PostMapping("saveTask")
+    public String saveTask(TaskEntity taskEntity) {
+        taskEntity.setTotalUtilizedHours(0);
+        taskRepository.save(taskEntity);
         return "redirect:/taskList";
     }
-   
-   @GetMapping("deleteTask/{taskId}")
-	public String deleteTask(@PathVariable Integer taskId) {
-		taskRepository.deleteById(taskId);
-		
-		return "redirect:/taskList";//do not open jsp , open another url -> taskList
-	}
 
+    @GetMapping("/viewTask/{taskId}")
+    public String viewTask(@PathVariable Integer taskId, Model model) {
+        Optional<TaskEntity> opt = taskRepository.findById(taskId);
+        if (opt.isPresent()) {
+            model.addAttribute("task", opt.get());
+            model.addAttribute("projectList", projectRepository.findAll());
+            model.addAttribute("statusList", projectStatusRepositary.findAll());
+            model.addAttribute("moduleList", moduleRepositary.findAll());
+            return "ViewTask";
+        }
+        return "redirect:/taskList";
+    }
+
+    @GetMapping("editTask/{taskId}")
+    public String editTask(@PathVariable Integer taskId, Model model) {
+        Optional<TaskEntity> opt = taskRepository.findById(taskId);
+        if (opt.isPresent()) {
+            model.addAttribute("task", opt.get());
+            model.addAttribute("projectList", projectRepository.findAll());
+            model.addAttribute("moduleList", moduleRepositary.findAll());
+            model.addAttribute("statusList", projectStatusRepositary.findAll());
+            return "EditTask";
+        }
+        return "redirect:/taskList";
+    }
+
+    @PostMapping("updateTask")
+    public String updateTask(@RequestParam("taskId") Integer taskId,
+                             @RequestParam("title") String title,
+                             @RequestParam("moduleId") Integer moduleId,
+                             @RequestParam("projectId") Integer projectId,
+                             @RequestParam("description") String description,
+                             @RequestParam("docURL") String docURL,
+                             @RequestParam("status") String status,
+                             @RequestParam("estimatedHours") Integer estimatedHours) {
+        Optional<TaskEntity> opt = taskRepository.findById(taskId);
+        if (opt.isPresent()) {
+            TaskEntity t = opt.get();
+            t.setTitle(title);
+            t.setModuleId(moduleId);
+            t.setProjectId(projectId);
+            t.setDescription(description);
+            t.setDocURL(docURL);
+            t.setStatus(status);
+            t.setEstimatedHours(estimatedHours);
+            taskRepository.save(t);
+        }
+        return "redirect:/taskList";
+    }
+
+    @GetMapping("deleteTask/{taskId}")
+    public String deleteTask(@PathVariable Integer taskId) {
+        taskRepository.deleteById(taskId);
+        return "redirect:/taskList";
+    }
 }

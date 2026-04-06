@@ -29,6 +29,7 @@ import com.Grownited.repository.ProjectStatusRepositary;
 import com.Grownited.repository.TaskRepository;
 import com.Grownited.repository.TaskUserRepository;
 import com.Grownited.repository.UserRepository;
+import com.Grownited.service.StatusSyncService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -53,6 +54,9 @@ public class DeveloperController {
 	@Autowired
 	ModuleRepositary moduleRepositary;
 
+	@Autowired
+	private StatusSyncService statusSyncService;
+	
 	@GetMapping("/DeveloperDashboard")
 	public String DeveloperDashboard(Model model, HttpSession session) {
 	    UserEntity user = (UserEntity) session.getAttribute("dbuser");
@@ -463,106 +467,92 @@ public class DeveloperController {
 	    return "UpdateTaskStatusDeveloper";
 	}
 
-	@PostMapping("updateTaskStatusDeveloper/{taskUserId}")
-	public String updateTaskStatus(@PathVariable Integer taskUserId,
-	                               @RequestParam("taskStatus") String taskStatus,
-	                               @RequestParam(value = "comments", required = false) String comments,
-	                               HttpSession session) {
-	    
-	    UserEntity user = (UserEntity) session.getAttribute("dbuser");
-	    
-	    if (user == null) {
-	        return "redirect:/login";
-	    }
-	    
-	    TaskUserEntity devTaskUser = taskUserRepository.findById(taskUserId).orElse(null);
-	    
-	    if (devTaskUser != null && devTaskUser.getUserId().equals(user.getUserId())) {
-	        
-	        String currentStatus = devTaskUser.getTaskStatus();
-	        LocalDateTime now = LocalDateTime.now();
-	        
-	        boolean isValidTransition = false;
-	        
-	        // Case 1: Assigned -> InProgress
-	        if ("Assigned".equals(currentStatus) && "InProgress".equals(taskStatus)) {
-	            devTaskUser.setInProgressStartTime(now);
-	            devTaskUser.setTaskStatus(taskStatus);
-	            isValidTransition = true;
-	            comments = "Started working on this task";
-	        } 
-	        
-	        // Case 2: InProgress -> PendingTesting (Developer marks ready for testing)
-	        else if ("InProgress".equals(currentStatus) && "PendingTesting".equals(taskStatus)) {
-	            if (devTaskUser.getInProgressStartTime() != null) {
-	                Duration duration = Duration.between(devTaskUser.getInProgressStartTime(), now);
-	                long milliseconds = duration.toMillis();
-	                double hoursWorked = milliseconds / (1000.0 * 60 * 60);
-	                
-	                int hoursToAdd = (int) Math.round(hoursWorked);
-	                if (hoursToAdd < 1 && hoursWorked > 0) hoursToAdd = 1;
-	                
-	                int currentHours = devTaskUser.getUtilizedHours() != null ? devTaskUser.getUtilizedHours() : 0;
-	                devTaskUser.setUtilizedHours(currentHours + hoursToAdd);
-	                devTaskUser.setInProgressStartTime(null);
-	                
-	                comments = String.format("Worked for %.1f hours. Ready for testing.", hoursWorked);
-	            }
-	            devTaskUser.setTaskStatus(taskStatus);
-	            isValidTransition = true;
-	            
-	            // Update TESTER's status to "PendingTesting" when developer marks as ready
-	            List<TaskUserEntity> allAssignments = taskUserRepository.findByTaskId(devTaskUser.getTaskId());
-	            for (TaskUserEntity assignment : allAssignments) {
-	                UserEntity assignedUser = userRepository.findById(assignment.getUserId()).orElse(null);
-	                if (assignedUser != null && "tester".equals(assignedUser.getRole())) {
-	                    assignment.setTaskStatus("PendingTesting");
-	                    
-	                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-	                    String timestamp = now.format(formatter);
-	                    String testerComment = "[" + timestamp + "] Developer marked task as ready for testing.";
-	                    
-	                    String existingTesterComments = assignment.getComments();
-	                    if (existingTesterComments == null || existingTesterComments.isEmpty()) {
-	                        assignment.setComments(testerComment);
-	                    } else {
-	                        assignment.setComments(existingTesterComments + "\n" + testerComment);
-	                    }
-	                    
-	                    taskUserRepository.save(assignment);
-	                    break;
-	                }
-	            }
-	        }
-	        
-	        // Case 3: Defect -> InProgress (when fixing defect reported by tester)
-	        else if ("Defect".equals(currentStatus) && "InProgress".equals(taskStatus)) {
-	            devTaskUser.setInProgressStartTime(now);
-	            devTaskUser.setTaskStatus(taskStatus);
-	            isValidTransition = true;
-	            comments = "Started fixing defect";
-	        }
-	        
-	        if (isValidTransition) {
-	            if (comments != null && !comments.trim().isEmpty()) {
-	                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-	                String timestamp = now.format(formatter);
-	                String newComment = "[" + timestamp + "] " + comments.trim();
-	                
-	                String existingComments = devTaskUser.getComments();
-	                if (existingComments == null || existingComments.isEmpty()) {
-	                    devTaskUser.setComments(newComment);
-	                } else {
-	                    devTaskUser.setComments(existingComments + "\n" + newComment);
-	                }
-	            }
-	            
-	            taskUserRepository.save(devTaskUser);
-	        }
-	    }
-	    
-	    return "redirect:/taskListDeveloper";
-	}
+	  // =============== UPDATE STATUS POST ===============
+    @PostMapping("updateTaskStatusDeveloper/{taskUserId}")
+    public String updateTaskStatus(@PathVariable Integer taskUserId,
+                                   @RequestParam("taskStatus") String taskStatus,
+                                   @RequestParam(value = "comments", required = false) String comments,
+                                   HttpSession session) {
+        UserEntity user = (UserEntity) session.getAttribute("dbuser");
+        if (user == null) return "redirect:/login";
+
+        TaskUserEntity devTaskUser = taskUserRepository.findById(taskUserId).orElse(null);
+        if (devTaskUser != null && devTaskUser.getUserId().equals(user.getUserId())) {
+            String currentStatus = devTaskUser.getTaskStatus();
+            LocalDateTime now = LocalDateTime.now();
+            boolean isValidTransition = false;
+
+            // Case 1: Assigned -> InProgress
+            if ("Assigned".equals(currentStatus) && "InProgress".equals(taskStatus)) {
+                devTaskUser.setInProgressStartTime(now);
+                devTaskUser.setTaskStatus(taskStatus);
+                isValidTransition = true;
+                comments = "Started working on this task";
+            }
+            // Case 2: InProgress -> PendingTesting (Developer marks ready for testing)
+            else if ("InProgress".equals(currentStatus) && "PendingTesting".equals(taskStatus)) {
+                if (devTaskUser.getInProgressStartTime() != null) {
+                    Duration duration = Duration.between(devTaskUser.getInProgressStartTime(), now);
+                    long milliseconds = duration.toMillis();
+                    double hoursWorked = milliseconds / (1000.0 * 60 * 60);
+                    int hoursToAdd = (int) Math.round(hoursWorked);
+                    if (hoursToAdd < 1 && hoursWorked > 0) hoursToAdd = 1;
+                    int currentHours = devTaskUser.getUtilizedHours() != null ? devTaskUser.getUtilizedHours() : 0;
+                    devTaskUser.setUtilizedHours(currentHours + hoursToAdd);
+                    devTaskUser.setInProgressStartTime(null);
+                    comments = String.format("Worked for %.1f hours. Ready for testing.", hoursWorked);
+                }
+                devTaskUser.setTaskStatus(taskStatus);
+                isValidTransition = true;
+
+                // Update TESTER's status to "PendingTesting"
+                List<TaskUserEntity> allAssignments = taskUserRepository.findByTaskId(devTaskUser.getTaskId());
+                for (TaskUserEntity assignment : allAssignments) {
+                    UserEntity assignedUser = userRepository.findById(assignment.getUserId()).orElse(null);
+                    if (assignedUser != null && "tester".equals(assignedUser.getRole())) {
+                        assignment.setTaskStatus("PendingTesting");
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                        String timestamp = now.format(formatter);
+                        String testerComment = "[" + timestamp + "] Developer marked task as ready for testing.";
+                        String existingTesterComments = assignment.getComments();
+                        if (existingTesterComments == null || existingTesterComments.isEmpty()) {
+                            assignment.setComments(testerComment);
+                        } else {
+                            assignment.setComments(existingTesterComments + "\n" + testerComment);
+                        }
+                        taskUserRepository.save(assignment);
+                        break;
+                    }
+                }
+            }
+            // Case 3: Defect -> InProgress (fixing defect)
+            else if ("Defect".equals(currentStatus) && "InProgress".equals(taskStatus)) {
+                devTaskUser.setInProgressStartTime(now);
+                devTaskUser.setTaskStatus(taskStatus);
+                isValidTransition = true;
+                comments = "Started fixing defect";
+            }
+
+            if (isValidTransition) {
+                if (comments != null && !comments.trim().isEmpty()) {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    String timestamp = now.format(formatter);
+                    String newComment = "[" + timestamp + "] " + comments.trim();
+                    String existingComments = devTaskUser.getComments();
+                    if (existingComments == null || existingComments.isEmpty()) {
+                        devTaskUser.setComments(newComment);
+                    } else {
+                        devTaskUser.setComments(existingComments + "\n" + newComment);
+                    }
+                }
+                taskUserRepository.save(devTaskUser);
+
+                // NEW: sync task and module status after update
+                statusSyncService.syncTaskAndModuleStatus(devTaskUser.getTaskId());
+            }
+        }
+        return "redirect:/taskListDeveloper";
+    }
 	
 	// ==================== HELPER METHODS ====================
 	

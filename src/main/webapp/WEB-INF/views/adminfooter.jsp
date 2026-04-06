@@ -4,12 +4,39 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <style>
+    /* Ensure body and html take full height and use flex */
+    html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Main content should grow to push footer down */
+    .main-content {
+        flex: 1 0 auto;
+        padding-bottom: 1rem;
+    }
+    
+    /* Footer styling */
     .bugboard-footer {
-        background: rgba(15, 23, 42, 0.8);
+        background: rgba(15, 23, 42, 0.95);
         backdrop-filter: blur(10px);
-        border-top: 1px solid rgba(99, 102, 241, 0.2);
-        margin-top: 3rem;
-        padding: 1.5rem 0;
+        border-top: 1px solid rgba(99, 102, 241, 0.3);
+        padding: 1rem 0;
+        margin-top: 0;
+        flex-shrink: 0;
+        width: 100%;
+        position: relative;
+        z-index: 10;
+    }
+    
+    /* Offset footer to the right on large screens to avoid sidebar overlap */
+    @media (min-width: 992px) {
+        .bugboard-footer {
+            margin-left: 260px;  /* same as sidebar width */
+            width: calc(100% - 260px);
+        }
     }
     
     .bugboard-footer .footer-content {
@@ -30,7 +57,7 @@
     }
     
     .bugboard-footer .footer-logo i {
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         color: var(--primary-color);
     }
     
@@ -44,14 +71,14 @@
     
     .bugboard-footer .footer-links {
         display: flex;
-        gap: 2rem;
+        gap: 1.5rem;
         flex-wrap: wrap;
     }
     
     .bugboard-footer .footer-links a {
-        color: var(--text-secondary);
+        color: #94a3b8;
         text-decoration: none;
-        font-size: 0.875rem;
+        font-size: 0.85rem;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
@@ -64,7 +91,7 @@
     }
     
     .bugboard-footer .footer-copyright {
-        color: var(--text-secondary);
+        color: #64748b;
         font-size: 0.75rem;
         display: flex;
         align-items: center;
@@ -75,11 +102,18 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(16, 185, 129, 0.15);
-        padding: 0.25rem 0.75rem;
+        background: rgba(16, 185, 129, 0.2);
+        padding: 0.2rem 0.7rem;
         border-radius: 20px;
-        font-size: 0.75rem;
-        color: var(--secondary-color);
+        font-size: 0.7rem;
+        color: #10b981;
+    }
+    
+    @media (max-width: 992px) {
+        .bugboard-footer {
+            margin-left: 0;
+            width: 100%;
+        }
     }
     
     @media (max-width: 768px) {

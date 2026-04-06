@@ -27,7 +27,7 @@
     <div class="row mb-4 g-3">
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'all' ? 'border-primary' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=all&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=all&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">All Tasks</div>
@@ -39,7 +39,7 @@
         </div>
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'Assigned' ? 'border-info' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=Assigned&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=Assigned&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">Assigned</div>
@@ -51,7 +51,7 @@
         </div>
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'InProgress' ? 'border-primary' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=InProgress&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=InProgress&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">In Progress</div>
@@ -63,7 +63,7 @@
         </div>
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'PendingTesting' ? 'border-warning' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=PendingTesting&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=PendingTesting&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">Pending Review</div>
@@ -75,7 +75,7 @@
         </div>
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'Defect' ? 'border-danger' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=Defect&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=Defect&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">Defects</div>
@@ -87,7 +87,7 @@
         </div>
         <div class="col-md-2">
             <div class="glass-card p-3 ${statusFilter == 'Completed' ? 'border-success' : ''}" 
-                 style="cursor: pointer;" onclick="location.href='?status=Completed&page=1&size=${pageSize}'">
+                 style="cursor: pointer;" onclick="location.href='?status=Completed&page=1&size=${pageSize}&search=${searchTerm}'">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <div class="text-secondary small">Completed</div>
@@ -107,16 +107,40 @@
             <span class="text-white fw-bold">${pageSize * (currentPage - 1) + 1}</span> - 
             <span class="text-white fw-bold">${pageSize * currentPage > totalItems ? totalItems : pageSize * currentPage}</span> 
             of <span class="text-white fw-bold">${totalItems}</span> tasks
+            <c:if test="${not empty searchTerm}">
+                <span class="ms-2">
+                    <span class="badge bg-info">Search: "${searchTerm}"</span>
+                    <a href="?status=${statusFilter}&page=1&size=${pageSize}" class="text-decoration-none ms-1">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                </span>
+            </c:if>
         </div>
         <div class="d-flex gap-3">
-            <div class="input-group" style="width: 250px;">
-                <span class="input-group-text bg-transparent border-secondary text-secondary">
-                    <i class="bi bi-search"></i>
-                </span>
-                <input type="text" id="searchInput" 
-                       class="form-control bg-transparent text-white border-secondary"
-                       placeholder="Search tasks..." onkeyup="filterTable()">
-            </div>
+            <form method="get" action="" id="searchForm" class="d-flex gap-2">
+                <input type="hidden" name="status" value="${statusFilter}">
+                <input type="hidden" name="page" value="1">
+                <input type="hidden" name="size" value="${pageSize}">
+                <div class="input-group" style="width: 280px;">
+                    <span class="input-group-text bg-transparent border-secondary text-secondary">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" name="search" id="searchInput" 
+                           class="form-control bg-transparent text-white border-secondary"
+                           placeholder="Search by task name, description..." 
+                           value="${searchTerm}"
+                           onkeypress="handleSearchKeyPress(event)">
+                    <c:if test="${not empty searchTerm}">
+                        <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </c:if>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </form>
+            
             <select id="pageSizeSelect" class="form-select bg-dark text-white border-secondary" 
                     style="width: auto;" onchange="changePageSize()">
                 <option value="5" ${pageSize == 5 ? 'selected' : ''}>5 per page</option>
@@ -136,21 +160,21 @@
     <!-- Tasks Table -->
     <div class="glass-card p-4">
         <div class="table-responsive">
-            <table class="table table-hover mb-0" id="taskTable">
+            <table class="table table-hover mb-0">
                 <thead>
                     <tr class="text-secondary">
-                        <th>#</th>
-                        <th>Task Name</th>
-                        <th>Module</th>
-                        <th>Project</th>
-                        <th>Status</th>
-                        <th>Est. Hours</th>
-                        <th>Actions</th>
-                      </tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 20%">Task Name</th>
+                        <th style="width: 15%">Module</th>
+                        <th style="width: 15%">Project</th>
+                        <th style="width: 12%">Status</th>
+                        <th style="width: 8%">Est. Hours</th>
+                        <th style="width: 10%">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <c:forEach var="task" items="${taskList}" varStatus="status">
-                         <tr>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
                             <td class="text-white">${status.index + 1 + (currentPage-1)*pageSize}</td>
                             <td class="text-white fw-medium">${task.title}</td>
                             <td class="text-white">
@@ -187,24 +211,30 @@
                             </td>
                             <td class="text-white">${task.estimatedHours} hrs</td>
                             <td>
-                                <div class="d-flex gap-2">
-                                    <a href="viewTaskPM/${task.taskId}" class="btn btn-sm btn-primary">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="viewTaskPM/${task.taskId}" class="btn btn-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
-                                    <a href="editTaskPM/${task.taskId}" class="btn btn-sm btn-warning">
+                                    <a href="editTaskPM/${task.taskId}" class="btn btn-warning">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 </div>
                             </td>
-                         </tr>
+                        </tr>
                     </c:forEach>
                     <c:if test="${empty taskList}">
-                         <tr>
+                        <tr>
                             <td colspan="7" class="text-center text-secondary py-5">
                                 <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                                 <h5>No tasks found</h5>
+                                <c:if test="${not empty searchTerm}">
+                                    <p class="mt-2">No tasks matching "<strong class="text-info">${searchTerm}</strong>"</p>
+                                    <a href="?status=${statusFilter}&page=1&size=${pageSize}" class="btn btn-sm btn-outline-primary mt-2">
+                                        <i class="bi bi-x-circle"></i> Clear Search
+                                    </a>
+                                </c:if>
                             </td>
-                         </tr>
+                        </tr>
                     </c:if>
                 </tbody>
             </table>
@@ -217,13 +247,13 @@
                     <ul class="pagination mb-0">
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
-                               href="?status=${statusFilter}&page=1&size=${pageSize}">
+                               href="?status=${statusFilter}&page=1&size=${pageSize}&search=${searchTerm}">
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
-                               href="?status=${statusFilter}&page=${currentPage-1}&size=${pageSize}">
+                               href="?status=${statusFilter}&page=${currentPage-1}&size=${pageSize}&search=${searchTerm}">
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
@@ -231,20 +261,20 @@
                                    end="${currentPage+2 <= totalPages ? currentPage+2 : totalPages}" var="i">
                             <li class="page-item ${currentPage == i ? 'active' : ''}">
                                 <a class="page-link ${currentPage == i ? 'bg-primary border-primary text-white' : 'bg-dark text-white border-secondary'}" 
-                                   href="?status=${statusFilter}&page=${i}&size=${pageSize}">
+                                   href="?status=${statusFilter}&page=${i}&size=${pageSize}&search=${searchTerm}">
                                     ${i}
                                 </a>
                             </li>
                         </c:forEach>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
-                               href="?status=${statusFilter}&page=${currentPage+1}&size=${pageSize}">
+                               href="?status=${statusFilter}&page=${currentPage+1}&size=${pageSize}&search=${searchTerm}">
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
-                               href="?status=${statusFilter}&page=${totalPages}&size=${pageSize}">
+                               href="?status=${statusFilter}&page=${totalPages}&size=${pageSize}&search=${searchTerm}">
                                 <i class="bi bi-chevron-double-right"></i>
                             </a>
                         </li>
@@ -317,7 +347,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label text-secondary">Estimated Hours *</label>
-                            <input type="number" name="estimatedHours" 
+                            <input type="number" name="estimatedHours" step="0.5" 
                                    class="form-control bg-transparent text-white border-secondary" required>
                         </div>
                     </div>
@@ -338,17 +368,20 @@
 <jsp:include page="ProjectManagerFooter.jsp" />
 
 <script>
-function filterTable() {
-    const input = document.getElementById("searchInput").value.toLowerCase();
-    const table = document.getElementById("taskTable");
-    const rows = table.getElementsByTagName("tr");
-    for (let i = 1; i < rows.length; i++) {
-        rows[i].style.display = rows[i].innerText.toLowerCase().indexOf(input) > -1 ? "" : "none";
+function handleSearchKeyPress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        document.getElementById('searchForm').submit();
     }
 }
+
+function clearSearch() {
+    window.location.href = "?status=${statusFilter}&page=1&size=${pageSize}";
+}
+
 function changePageSize() {
     const size = document.getElementById("pageSizeSelect").value;
-    window.location.href = "?status=${statusFilter}&page=1&size=" + size;
+    window.location.href = "?status=${statusFilter}&page=1&size=" + size + "&search=${searchTerm}";
 }
 </script>
 
@@ -357,5 +390,18 @@ function changePageSize() {
     background-color: var(--primary-color) !important;
     border-color: var(--primary-color) !important;
     color: white !important;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
 }
 </style>

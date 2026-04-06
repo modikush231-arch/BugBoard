@@ -108,25 +108,17 @@ ${tu.taskStatus}
 </td>
 <td>${tu.comments}</td>
  <td>
-       <c:choose>
-                                <c:when test="${tu.assignStatus == 1}">
-                                    <span class="badge bg-success">
-                                        Assigned
-                                    </span>
-                                </c:when>
-                                <c:otherwise>
-                                    <span class="badge bg-danger">
-                                        Revoked
-                                    </span>
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-
-
-
-
-  <!-- Actions -->
-                      <td>
+    <c:choose>
+        <c:when test="${tu.taskStatus == 'Assigned'}"><span class="badge bg-info">Assigned</span></c:when>
+        <c:when test="${tu.taskStatus == 'InProgress'}"><span class="badge bg-primary">In Progress</span></c:when>
+        <c:when test="${tu.taskStatus == 'PendingTesting'}"><span class="badge bg-warning text-dark">Pending Testing</span></c:when>
+        <c:when test="${tu.taskStatus == 'Completed'}"><span class="badge bg-success">Completed</span></c:when>
+        <c:when test="${tu.taskStatus == 'Defect'}"><span class="badge bg-danger">Defect</span></c:when>
+        <c:when test="${tu.taskStatus == 'Verified'}"><span class="badge bg-success">Verified</span></c:when>
+        <c:when test="${tu.taskStatus == 'NotStarted'}"><span class="badge bg-secondary">Not Started</span></c:when>
+        <c:otherwise><span class="badge bg-secondary">${tu.taskStatus}</span></c:otherwise>
+    </c:choose>
+</td>
 <div class="d-flex gap-2">
 
 <a href="viewTaskUser/${tu.taskUserId}"
@@ -214,43 +206,32 @@ ${user.first_name} ${user.last_name}
 </select>
                             </div>
 
-                            <!-- Assignment Status -->
-                            <div class="mb-3">
-                                <label class="form-label text-secondary">Assignment Status</label>
-                                <select name="assignStatus" class="form-select bg-transparent text-white border-secondary" required>
-                                    <option value="1" class="text-dark">Assign</option>
-                                    <option value="2" class="text-dark">Revoke</option>
-                                </select>
-                            </div>
+                           <!-- Assignment Status -->
+<div class="mb-3">
+    <label class="form-label text-secondary">Assignment Status</label>
+    <select name="assignStatus" class="form-select bg-transparent text-white border-secondary" required>
+        <option value="1" class="text-dark">Assign</option>
+        <option value="2" class="text-dark">Revoke</option>
+    </select>
+</div>
 
-                            <div class="mb-3">
-                                <label class="form-label text-secondary">Task Status</label>
-                                  <select name="status" class="form-select bg-transparent text-white border-secondary" required>
-                                        <option value="" disabled selected class="text-dark">Select Status</option>
-                                        <option value="Assign" class="text-dark">Assign</option>
-                                        <option value="PendingTesting" class="text-dark">Pending Testing</option>
-                                        <option value="InProgress" class="text-dark">InProgress</option>
-                                        <option value="Completed" class="text-dark">Completed</option>
-                                        <option value="Defect" class="text-dark">Defect</option>
-                                         <option value="Verified" class="text-dark">Verified</option>
-                                    </select>
-                            </div>
-                                         <!-- Developer Comment -->
+<!-- Utilized Hours -->
+<div class="mb-3">
+    <label class="form-label text-secondary">Initial Hours (Utilized)</label>
+    <input type="number" name="utilizedHours" class="form-control bg-transparent text-white border-secondary" min="0" value="0" step="0.5">
+</div>
+
+<!-- Developer Comment -->
 <div class="mb-3">
     <label class="form-label text-secondary">Developer Comment</label>
-    <textarea name="devComment"
-              class="form-control bg-transparent text-white border-secondary"
-              rows="2"></textarea>
+    <textarea name="devComment" class="form-control bg-transparent text-white border-secondary" rows="2"></textarea>
 </div>
 
 <!-- Tester Comment -->
 <div class="mb-3">
     <label class="form-label text-secondary">Tester Comment</label>
-    <textarea name="testerComment"
-              class="form-control bg-transparent text-white border-secondary"
-              rows="2"></textarea>
-</div>
-                            <!-- Utilized Hours -->
+    <textarea name="testerComment" class="form-control bg-transparent text-white border-secondary" rows="2"></textarea>
+</div>                            <!-- Utilized Hours -->
                             <div class="mb-3">
                                 <label class="form-label text-secondary">Utilized Hours</label>
                                 <input type="number" name="utilizedHours"

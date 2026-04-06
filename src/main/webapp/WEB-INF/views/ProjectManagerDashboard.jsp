@@ -51,12 +51,12 @@
             </div>
         </div>
         <div class="col-xl-2 col-md-4 col-6">
-            <div class="glass-card stat-card card-pending fade-in delay-3">
-                <div class="stat-icon icon-pending"><i class="bi bi-clock-history"></i></div>
-                <div class="stat-number text-white">${pendingTasks}</div>
-                <div class="text-secondary">Pending Tasks</div>
-            </div>
-        </div>
+    <div class="glass-card stat-card card-pending fade-in delay-3">
+        <div class="stat-icon icon-pending"><i class="bi bi-clock-history"></i></div>
+        <div class="stat-number text-white">${pendingTasks}</div>
+        <div class="text-secondary">Pending Tasks</div>
+    </div>
+</div>
         <div class="col-xl-2 col-md-4 col-6">
             <div class="glass-card stat-card card-lead fade-in delay-4">
                 <div class="stat-icon icon-lead"><i class="bi bi-star"></i></div>
@@ -96,33 +96,20 @@
                 </div>
                 <div class="p-3" style="max-height: 280px; overflow-y: auto;">
                     <c:forEach var="activity" items="${recentActivities}" varStatus="status">
-                        <div class="activity-item mb-3">
-                            <div class="d-flex align-items-start">
-                                <div class="activity-icon me-3" style="background: rgba(99,102,241,0.2);">
-                                    <c:choose>
-                                        <c:when test="${activity.type == 'task_created'}">
-                                            <i class="bi bi-plus-circle text-primary"></i>
-                                        </c:when>
-                                        <c:when test="${activity.type == 'task_completed'}">
-                                            <i class="bi bi-check-circle text-success"></i>
-                                        </c:when>
-                                        <c:when test="${activity.type == 'task_assigned'}">
-                                            <i class="bi bi-person-plus text-info"></i>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <i class="bi bi-arrow-repeat text-warning"></i>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-medium text-white">${activity.message}</div>
-                                    <div class="text-secondary smaller mt-1">
-                                        <i class="bi bi-clock me-1"></i>${activity.timeAgo}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </c:forEach>
+    <div class="activity-item mb-3">
+        <div class="d-flex align-items-start">
+            <div class="activity-icon me-3" style="background: rgba(99,102,241,0.2);">
+                <i class="bi bi-arrow-repeat text-warning"></i>
+            </div>
+            <div class="flex-grow-1">
+                <div class="fw-medium text-white">${activity.message}</div>
+                <div class="text-secondary smaller mt-1">
+                    <i class="bi bi-clock me-1"></i>${activity.timeAgo}
+                </div>
+            </div>
+        </div>
+    </div>
+</c:forEach>
                     <c:if test="${empty recentActivities}">
                         <div class="text-center text-secondary py-4">
                             <i class="bi bi-clock-history fs-1 d-block mb-3"></i>
@@ -194,44 +181,52 @@
                         </thead>
                         <tbody>
                             <c:forEach items="${recentProjects}" var="project" varStatus="status">
-                                <c:if test="${status.index < 5}">
-                                    <tr>
-                                        <td>
-                                            <div class="fw-medium text-white">${project.title}</div>
-                                            <div class="text-secondary small">Project #${project.projectId}</div>
-                                        </td>
-                                        <td>
-                                            <c:forEach var="s" items="${statusList}">
-                                                <c:if test="${s.projectStatusId == project.projectStatusId}">
-                                                    <span class="badge 
-                                                        <c:choose>
-                                                            <c:when test="${s.status == 'Lead'}">bg-purple</c:when>
-                                                            <c:when test="${s.status == 'Not Started'}">bg-secondary</c:when>
-                                                            <c:when test="${s.status == 'In Progress'}">bg-primary</c:when>
-                                                            <c:when test="${s.status == 'Hold'}">bg-warning text-dark</c:when>
-                                                            <c:when test="${s.status == 'Completed'}">bg-success</c:when>
-                                                        </c:choose>
-                                                    ">${s.status}</span>
-                                                </c:if>
-                                            </c:forEach>
-                                        </td>
-                                        <td style="min-width: 120px;">
-                                            <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 me-2" style="height:6px;">
-                                                    <div class="progress-bar bg-info" style="width: ${project.progress != null ? project.progress : 0}%"></div>
-                                                </div>
-                                                <span class="small text-secondary">${project.progress != null ? project.progress : 0}%</span>
-                                            </div>
-                                        </td>
-                                        <td class="text-secondary">${project.taskCount != null ? project.taskCount : 0} tasks</td>
-                                        <td>
-                                            <a href="viewProjectPM/${project.projectId}" class="btn btn-sm btn-primary">
-                                                <i class="bi bi-eye"></i> View
-                                            </a>
-                                        </td>
-                                    </tr>
-                                </c:if>
-                            </c:forEach>
+    <c:if test="${status.index < 5}">
+        <tr>
+            <td>
+                <div class="fw-medium text-white">${project.title}</div>
+                <div class="text-secondary small">Project #${project.projectId}</div>
+            </td>
+            <td>
+                <c:forEach var="s" items="${statusList}">
+                    <c:if test="${s.projectStatusId == project.projectStatusId}">
+                        <span class="badge 
+                            <c:choose>
+                                <c:when test="${s.status == 'Lead'}">bg-purple</c:when>
+                                <c:when test="${s.status == 'NotStarted'}">bg-secondary</c:when>
+                                <c:when test="${s.status == 'InProgress'}">bg-primary</c:when>
+                                <c:when test="${s.status == 'Hold'}">bg-warning text-dark</c:when>
+                                <c:when test="${s.status == 'Completed'}">bg-success</c:when>
+                            </c:choose>
+                        ">${s.status}</span>
+                    </c:if>
+                </c:forEach>
+            </td>
+            <td style="min-width: 120px;">
+                <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2" style="height:6px;">
+                        <div class="progress-bar 
+                            <c:choose>
+                                <c:when test="${project.progress == 100}">bg-success</c:when>
+                                <c:when test="${project.progress >= 60}">bg-primary</c:when>
+                                <c:when test="${project.progress >= 30}">bg-warning</c:when>
+                                <c:when test="${project.progress >= 10}">bg-secondary</c:when>
+                                <c:otherwise>bg-purple</c:otherwise>
+                            </c:choose>
+                        " style="width: ${project.progress != null ? project.progress : 0}%"></div>
+                    </div>
+                    <span class="small text-secondary">${project.progress != null ? project.progress : 0}%</span>
+                </div>
+            </td>
+            <td class="text-secondary">${project.taskCount != null ? project.taskCount : 0} tasks</td>
+            <td>
+                <a href="viewProjectPM/${project.projectId}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-eye"></i> View
+                </a>
+            </td>
+        </tr>
+    </c:if>
+</c:forEach>
                             <c:if test="${empty recentProjects}">
                                 <tr>
                                     <td colspan="5" class="text-center text-secondary py-4">No projects found</td>

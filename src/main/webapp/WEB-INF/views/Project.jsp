@@ -69,13 +69,31 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-								<td class="text-white fw-medium">
+								<%-- <td class="text-white fw-medium">
 								    <c:forEach var="status" items="${statusList}">
 								        <c:if test="${status.projectStatusId == project.projectStatusId}">
 								            ${status.status}
 								        </c:if>
 								    </c:forEach>
-								</td>
+								</td> --%>
+							<td class="text-white fw-medium">
+    <c:set var="statusText" value="" />
+    <c:forEach var="s" items="${statusList}">
+        <c:if test="${s.projectStatusId == project.projectStatusId}">
+            <c:set var="statusText" value="${s.status}" />
+        </c:if>
+    </c:forEach>
+    <span class="badge 
+        <c:choose>
+            <c:when test="${statusText == 'Lead'}">bg-purple</c:when>
+            <c:when test="${statusText == 'NotStarted'}">bg-secondary</c:when>
+            <c:when test="${statusText == 'InProgress'}">bg-primary</c:when>
+            <c:when test="${statusText == 'Hold'}">bg-warning text-dark</c:when>
+            <c:when test="${statusText == 'Completed'}">bg-success</c:when>
+            <c:otherwise>bg-secondary</c:otherwise>
+        </c:choose>
+    ">${statusText}</span>
+</td>
                                 
                                 <td>
                                     <div class="d-flex gap-2 justify-content">

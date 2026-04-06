@@ -87,13 +87,17 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-								 <td class="text-white fw-medium">								
-								    <c:forEach var="statusEntity" items="${statusList}">								    
-								        <c:if test="${statusEntity.projectStatusId == task.status}">								        
-								            ${statusEntity.status}								            
-								        </c:if>								        
-								    </c:forEach>								
-								</td>                                
+							<td class="text-white fw-medium">
+    <c:choose>
+        <c:when test="${task.status == 'Assigned'}"><span class="badge bg-info">Assigned</span></c:when>
+        <c:when test="${task.status == 'InProgress'}"><span class="badge bg-primary">In Progress</span></c:when>
+        <c:when test="${task.status == 'PendingTesting'}"><span class="badge bg-warning text-dark">Pending Review</span></c:when>
+        <c:when test="${task.status == 'Completed'}"><span class="badge bg-success">Completed</span></c:when>
+        <c:when test="${task.status == 'Defect'}"><span class="badge bg-danger">Defect</span></c:when>
+        <c:when test="${task.status == 'Verified'}"><span class="badge bg-success">Verified</span></c:when>
+        <c:otherwise><span class="badge bg-secondary">${task.status}</span></c:otherwise>
+    </c:choose>
+</td>                               
                                 <td>
                                     <div class="d-flex gap-2 justify-content">
                                         <a href="viewTask/${task.taskId}" 

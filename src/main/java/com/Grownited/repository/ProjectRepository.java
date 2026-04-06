@@ -28,6 +28,9 @@ public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer>
     @Query("SELECT p FROM ProjectEntity p WHERE p.projectId IN :projectIds ORDER BY p.projectId DESC")
     List<ProjectEntity> findTop5ByProjectIdInOrderByProjectIdDesc(@Param("projectIds") List<Integer> projectIds);
     
+    // ✅ NEW: Find top 5 recent projects (all projects, ordered by ID descending)
+    List<ProjectEntity> findTop5ByOrderByProjectIdDesc();
+    
     // ✅ NEW: Find all projects by status ID
     List<ProjectEntity> findByProjectStatusId(Integer statusId);
 }

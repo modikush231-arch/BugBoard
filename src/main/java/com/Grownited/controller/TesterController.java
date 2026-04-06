@@ -26,6 +26,7 @@ import com.Grownited.repository.ProjectRepository;
 import com.Grownited.repository.TaskRepository;
 import com.Grownited.repository.TaskUserRepository;
 import com.Grownited.repository.UserRepository;
+import com.Grownited.service.StatusSyncService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -44,6 +45,9 @@ public class TesterController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private StatusSyncService statusSyncService;
+    
     @GetMapping("/TesterDashboard")
     public String testerDashboard(Model model, HttpSession session) {
         UserEntity user = (UserEntity) session.getAttribute("dbuser");
@@ -458,51 +462,37 @@ public class TesterController {
         return "ViewTaskTester";
     }
     
+    // =============== UPDATE STATUS ===============
     @PostMapping("/updateTestTaskStatus/{taskUserId}")
     public String updateTestTaskStatus(@PathVariable Integer taskUserId,
                                        @RequestParam("taskStatus") String taskStatus,
                                        @RequestParam(value = "comments", required = false) String comments,
                                        HttpSession session) {
-        
         UserEntity user = (UserEntity) session.getAttribute("dbuser");
-        
-        if (user == null) {
-            return "redirect:/login";
-        }
-        
+        if (user == null) return "redirect:/login";
+
         TaskUserEntity testerTaskUser = taskUserRepository.findById(taskUserId).orElse(null);
-        
         if (testerTaskUser != null && testerTaskUser.getUserId().equals(user.getUserId())) {
-            
             if ("Verified".equals(taskStatus) || "Defect".equals(taskStatus)) {
-                
                 String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
-                
-                // Calculate hours with decimal precision
                 double hoursSpent = 0;
                 if (testerTaskUser.getTestingStartTime() != null) {
                     LocalDateTime now = LocalDateTime.now();
                     Duration duration = Duration.between(testerTaskUser.getTestingStartTime(), now);
                     long milliseconds = duration.toMillis();
                     hoursSpent = milliseconds / (1000.0 * 60 * 60);
-                    
-                    // Only add if there's any time spent
                     if (milliseconds > 0) {
                         int currentMinutes = testerTaskUser.getUtilizedHours() != null ? testerTaskUser.getUtilizedHours() : 0;
                         int minutesToAdd = (int) Math.round(milliseconds / (1000.0 * 60));
                         testerTaskUser.setUtilizedHours(currentMinutes + minutesToAdd);
                     }
-                    
-                    // Clear test timer
                     testerTaskUser.setTestingStartTime(null);
                     testerTaskUser.setTestingEndTime(LocalDateTime.now());
                 }
-                
-                // 1. Update TESTER's assignment
+
+                // Update TESTER assignment
                 testerTaskUser.setTaskStatus(taskStatus);
-                
                 if (comments != null && !comments.trim().isEmpty()) {
-                    // Format hours spent for display
                     String timeInfo = "";
                     if (hoursSpent > 0) {
                         if (hoursSpent < 1) {
@@ -513,7 +503,6 @@ public class TesterController {
                         }
                     }
                     String newComment = "[" + timestamp + "] TESTER: " + comments.trim() + timeInfo;
-                    
                     String existingComments = testerTaskUser.getComments();
                     if (existingComments == null || existingComments.isEmpty()) {
                         testerTaskUser.setComments(newComment);
@@ -521,20 +510,15 @@ public class TesterController {
                         testerTaskUser.setComments(existingComments + "\n" + newComment);
                     }
                 }
-                
                 taskUserRepository.save(testerTaskUser);
-                
-                // 2. Update DEVELOPER's assignment
+
+                // Update DEVELOPER assignment
                 List<TaskUserEntity> allTaskAssignments = taskUserRepository.findByTaskId(testerTaskUser.getTaskId());
-                
                 for (TaskUserEntity assignment : allTaskAssignments) {
                     UserEntity assignedUser = userRepository.findById(assignment.getUserId()).orElse(null);
-                    
                     if (assignedUser != null && "developer".equals(assignedUser.getRole())) {
-                        
                         if ("Defect".equals(taskStatus)) {
                             assignment.setTaskStatus("Defect");
-                            
                             String timeInfo = "";
                             if (hoursSpent > 0) {
                                 if (hoursSpent < 1) {
@@ -551,12 +535,9 @@ public class TesterController {
                             } else {
                                 assignment.setComments(devExistingComments + "\n" + devComment);
                             }
-                            
                             taskUserRepository.save(assignment);
-                        } 
-                        else if ("Verified".equals(taskStatus)) {
+                        } else if ("Verified".equals(taskStatus)) {
                             assignment.setTaskStatus("Completed");
-                            
                             String timeInfo = "";
                             if (hoursSpent > 0) {
                                 if (hoursSpent < 1) {
@@ -573,15 +554,16 @@ public class TesterController {
                             } else {
                                 assignment.setComments(devExistingComments + "\n" + devComment);
                             }
-                            
                             taskUserRepository.save(assignment);
                         }
                         break;
                     }
                 }
+
+                // NEW: sync task and module status after updates
+                statusSyncService.syncTaskAndModuleStatus(testerTaskUser.getTaskId());
             }
         }
-        
         return "redirect:/taskTester";
     }
     

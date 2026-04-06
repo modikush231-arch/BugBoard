@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> <!-- CHANGED: added for hour formatting -->
 
 <c:set var="pageTitle" value="Test Tasks" scope="request" />
 <c:set var="activeNav" value="testTasks" scope="request" />
@@ -115,105 +116,102 @@
                         <th>Project</th>
                         <th>Developer</th>
                         <th>Status</th>
-                        <th>Test Comment</th>
+                        <th>Hours Worked</th> <!-- CHANGED: was "Test Comment" -->
                         <th>Last Updated</th>
                         <th>Actions</th>
-                      </tr>
+                    </tr>
                 </thead>
                 <tbody>
-           <c:forEach var="tu" items="${taskUserList}" varStatus="status">
-    <c:set var="currentTask" value="" />
-    <c:forEach var="task" items="${taskList}">
-        <c:if test="${task.taskId == tu.taskId}">
-            <c:set var="currentTask" value="${task}" />
-        </c:if>
-    </c:forEach>
-    
-    <c:set var="currentProject" value="" />
-    <c:forEach var="project" items="${projectList}">
-        <c:if test="${project.projectId == currentTask.projectId}">
-            <c:set var="currentProject" value="${project}" />
-        </c:if>
-    </c:forEach>
-    
-    <%-- ✅ FIXED: Get developer name from developerAssignmentMap --%>
-    <c:set var="developerName" value="Not assigned" />
-    <c:set var="devAssignment" value="${developerAssignmentMap[currentTask.taskId]}" />
-    <c:if test="${not empty devAssignment}">
-        <c:forEach var="user" items="${allUsers}">
-            <c:if test="${user.userId == devAssignment.userId}">
-                <c:set var="developerName" value="${user.first_name} ${user.last_name}" />
-            </c:if>
-        </c:forEach>
-    </c:if>
-    
-     <tr>
-        <td class="text-white">${status.index + 1 + (currentPage-1)*pageSize}</td>
-        <td class="text-white fw-medium">${currentTask.title}</td>
-        <td class="text-white">${currentProject.title}</td>
-        <td class="text-white">
-            <i class="bi bi-person-badge me-1 text-secondary"></i>
-            ${developerName}
-        </td>
-        <td>
-            <c:choose>
-                <c:when test="${tu.taskStatus == 'PendingTesting'}">
-                    <span class="badge bg-warning text-dark px-3 py-2">
-                        <i class="bi bi-clock-history me-1"></i>Ready for Testing
-                    </span>
-                </c:when>
-                <c:when test="${tu.taskStatus == 'Verified'}">
-                    <span class="badge bg-success px-3 py-2">
-                        <i class="bi bi-check-circle me-1"></i>Verified
-                    </span>
-                </c:when>
-                <c:when test="${tu.taskStatus == 'Defect'}">
-                    <span class="badge bg-danger px-3 py-2">
-                        <i class="bi bi-exclamation-triangle me-1"></i>Defect Found
-                    </span>
-                </c:when>
-                <c:otherwise>
-                    <span class="badge bg-secondary px-3 py-2">${tu.taskStatus}</span>
-                </c:otherwise>
-            </c:choose>
-        </td>
-        <td class="text-white-50" style="max-width: 180px;">
-            <c:choose>
-                <c:when test="${not empty tu.comments}">
-                    <span title="${tu.comments}">
-                        <i class="bi bi-chat-dots me-1 text-secondary"></i>
-                        ${fn:substring(tu.comments, 0, 40)}${fn:length(tu.comments) > 40 ? '...' : ''}
-                    </span>
-                </c:when>
-                <c:otherwise>
-                    <span class="text-secondary">-</span>
-                </c:otherwise>
-            </c:choose>
-        </td>
-        <td class="text-secondary">
-            <c:choose>
-                <c:when test="${not empty formattedDates[tu.taskUserId]}">
-                    ${formattedDates[tu.taskUserId]}
-                </c:when>
-                <c:otherwise>-</c:otherwise>
-            </c:choose>
-        </td>
-<!-- In TaskTester.jsp, update the Actions column -->
-<td>
-    <div class="d-flex gap-2">
-        <a href="viewTaskTester/${tu.taskUserId}" class="btn btn-sm btn-primary">
-            <i class="bi bi-eye"></i> Test
-        </a>
-        <!-- ✅ UPDATE BUTTON FOR TESTER - Only for PendingTesting tasks -->
-        <c:if test="${tu.taskStatus == 'PendingTesting'}">
-            <a href="viewTaskTester/${tu.taskUserId}" class="btn btn-sm btn-warning">
-                <i class="bi bi-pencil"></i> Update
-            </a>
-        </c:if>
-    </div>
-</td>
-     </tr>
-</c:forEach>
+                    <c:forEach var="tu" items="${taskUserList}" varStatus="status">
+                        <c:set var="currentTask" value="" />
+                        <c:forEach var="task" items="${taskList}">
+                            <c:if test="${task.taskId == tu.taskId}">
+                                <c:set var="currentTask" value="${task}" />
+                            </c:if>
+                        </c:forEach>
+                        
+                        <c:set var="currentProject" value="" />
+                        <c:forEach var="project" items="${projectList}">
+                            <c:if test="${project.projectId == currentTask.projectId}">
+                                <c:set var="currentProject" value="${project}" />
+                            </c:if>
+                        </c:forEach>
+                        
+                        <%-- Get developer name from developerAssignmentMap --%>
+                        <c:set var="developerName" value="Not assigned" />
+                        <c:set var="devAssignment" value="${developerAssignmentMap[currentTask.taskId]}" />
+                        <c:if test="${not empty devAssignment}">
+                            <c:forEach var="user" items="${allUsers}">
+                                <c:if test="${user.userId == devAssignment.userId}">
+                                    <c:set var="developerName" value="${user.first_name} ${user.last_name}" />
+                                </c:if>
+                            </c:forEach>
+                        </c:if>
+                        
+                        <tr>
+                            <td class="text-white">${status.index + 1 + (currentPage-1)*pageSize}</td>
+                            <td class="text-white fw-medium">${currentTask.title}</td>
+                            <td class="text-white">${currentProject.title}</td>
+                            <td class="text-white">
+                                <i class="bi bi-person-badge me-1 text-secondary"></i>
+                                ${developerName}
+                            </td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${tu.taskStatus == 'PendingTesting'}">
+                                        <span class="badge bg-warning text-dark px-3 py-2">
+                                            <i class="bi bi-clock-history me-1"></i>Ready for Testing
+                                        </span>
+                                    </c:when>
+                                    <c:when test="${tu.taskStatus == 'Verified'}">
+                                        <span class="badge bg-success px-3 py-2">
+                                            <i class="bi bi-check-circle me-1"></i>Verified
+                                        </span>
+                                    </c:when>
+                                    <c:when test="${tu.taskStatus == 'Defect'}">
+                                        <span class="badge bg-danger px-3 py-2">
+                                            <i class="bi bi-exclamation-triangle me-1"></i>Defect Found
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge bg-secondary px-3 py-2">${tu.taskStatus}</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <!-- CHANGED: Show hours worked (utilizedHours stored in minutes) -->
+                            <td class="text-white">
+                                <c:set var="testMinutes" value="${tu.utilizedHours != null ? tu.utilizedHours : 0}" />
+                                <c:choose>
+                                    <c:when test="${testMinutes < 60}">
+                                        ${testMinutes} min
+                                    </c:when>
+                                    <c:otherwise>
+                                        <fmt:formatNumber value="${testMinutes / 60}" maxFractionDigits="1" /> hrs
+                                    </c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="text-secondary">
+                                <c:choose>
+                                    <c:when test="${not empty formattedDates[tu.taskUserId]}">
+                                        ${formattedDates[tu.taskUserId]}
+                                    </c:when>
+                                    <c:otherwise>-</c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="viewTaskTester/${tu.taskUserId}" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> Test
+                                    </a>
+                                    <c:if test="${tu.taskStatus == 'PendingTesting'}">
+                                        <a href="viewTaskTester/${tu.taskUserId}" class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pencil"></i> Update
+                                        </a>
+                                    </c:if>
+                                </div>
+                            </td>
+                        </tr>
+                    </c:forEach>
                     
                     <c:if test="${empty taskUserList}">
                         <tr>
@@ -228,12 +226,11 @@
             </table>
         </div>
         
-        <!-- Pagination - Always show if there are tasks, even if only 1 page -->
+        <!-- Pagination -->
         <c:if test="${totalItems > 0}">
             <div class="d-flex justify-content-center mt-4">
                 <nav>
                     <ul class="pagination mb-0">
-                        <!-- First Page -->
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
                                href="?status=${statusFilter}&page=1&size=${pageSize}"
@@ -241,8 +238,6 @@
                                 <i class="bi bi-chevron-double-left"></i>
                             </a>
                         </li>
-                        
-                        <!-- Previous Page -->
                         <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
                                href="?status=${statusFilter}&page=${currentPage-1}&size=${pageSize}"
@@ -250,8 +245,6 @@
                                 <i class="bi bi-chevron-left"></i>
                             </a>
                         </li>
-                        
-                        <!-- Page Numbers -->
                         <c:choose>
                             <c:when test="${totalPages <= 7}">
                                 <c:forEach begin="1" end="${totalPages}" var="i">
@@ -264,51 +257,30 @@
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <!-- First page -->
                                 <li class="page-item ${currentPage == 1 ? 'active' : ''}">
                                     <a class="page-link ${currentPage == 1 ? 'bg-primary border-primary text-white' : 'bg-dark text-white border-secondary'}" 
-                                       href="?status=${statusFilter}&page=1&size=${pageSize}">
-                                        1
-                                    </a>
+                                       href="?status=${statusFilter}&page=1&size=${pageSize}">1</a>
                                 </li>
-                                
-                                <!-- Left ellipsis -->
                                 <c:if test="${currentPage > 3}">
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-dark text-white border-secondary">...</span>
-                                    </li>
+                                    <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
                                 </c:if>
-                                
-                                <!-- Pages around current -->
                                 <c:forEach begin="${currentPage-1}" end="${currentPage+1}" var="i">
                                     <c:if test="${i > 1 && i < totalPages}">
                                         <li class="page-item ${currentPage == i ? 'active' : ''}">
                                             <a class="page-link ${currentPage == i ? 'bg-primary border-primary text-white' : 'bg-dark text-white border-secondary'}" 
-                                               href="?status=${statusFilter}&page=${i}&size=${pageSize}">
-                                                ${i}
-                                            </a>
+                                               href="?status=${statusFilter}&page=${i}&size=${pageSize}">${i}</a>
                                         </li>
                                     </c:if>
                                 </c:forEach>
-                                
-                                <!-- Right ellipsis -->
                                 <c:if test="${currentPage < totalPages-2}">
-                                    <li class="page-item disabled">
-                                        <span class="page-link bg-dark text-white border-secondary">...</span>
-                                    </li>
+                                    <li class="page-item disabled"><span class="page-link bg-dark text-white border-secondary">...</span></li>
                                 </c:if>
-                                
-                                <!-- Last page -->
                                 <li class="page-item ${currentPage == totalPages ? 'active' : ''}">
                                     <a class="page-link ${currentPage == totalPages ? 'bg-primary border-primary text-white' : 'bg-dark text-white border-secondary'}" 
-                                       href="?status=${statusFilter}&page=${totalPages}&size=${pageSize}">
-                                        ${totalPages}
-                                    </a>
+                                       href="?status=${statusFilter}&page=${totalPages}&size=${pageSize}">${totalPages}</a>
                                 </li>
                             </c:otherwise>
                         </c:choose>
-                        
-                        <!-- Next Page -->
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
                                href="?status=${statusFilter}&page=${currentPage+1}&size=${pageSize}"
@@ -316,8 +288,6 @@
                                 <i class="bi bi-chevron-right"></i>
                             </a>
                         </li>
-                        
-                        <!-- Last Page -->
                         <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                             <a class="page-link bg-dark text-white border-secondary" 
                                href="?status=${statusFilter}&page=${totalPages}&size=${pageSize}"
@@ -328,15 +298,8 @@
                     </ul>
                 </nav>
             </div>
-            
-            <!-- Page Info -->
             <div class="text-center text-secondary mt-3">
-                <small>
-                    Page <strong class="text-white">${currentPage}</strong> of <strong class="text-white">${totalPages}</strong>
-                    <c:if test="${pageSize < totalItems}">
-                        | Showing <strong class="text-white">${pageSize}</strong> items per page
-                    </c:if>
-                </small>
+                <small>Page <strong class="text-white">${currentPage}</strong> of <strong class="text-white">${totalPages}</strong></small>
             </div>
         </c:if>
     </div>
@@ -347,13 +310,11 @@ function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
     const table = document.getElementById("taskTable");
     const rows = table.getElementsByTagName("tr");
-
     for (let i = 1; i < rows.length; i++) {
         const rowText = rows[i].innerText.toLowerCase();
         rows[i].style.display = rowText.indexOf(input) > -1 ? "" : "none";
     }
 }
-
 function changePageSize() {
     const size = document.getElementById("pageSizeSelect").value;
     window.location.href = "?status=${statusFilter}&page=1&size=" + size;
@@ -375,6 +336,7 @@ function changePageSize() {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 </style>
 
 <jsp:include page="TesterFooter.jsp" />

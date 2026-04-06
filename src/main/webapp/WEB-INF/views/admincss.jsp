@@ -219,6 +219,28 @@
         border-color: var(--border-color);
     }
 
+	.bg-purple { background-color: #a855f7 !important; }
+
+#searchInput {
+    color: white !important;
+    caret-color: white; /* cursor color */
+}
+
+#searchInput::placeholder {
+    color: #aaa !important; /* light gray placeholder */
+}
+
+#searchInput:focus {
+    color: white !important;
+    background-color: transparent;
+}
+.input-group-text {
+    color: #ccc !important;
+}
+.form-control {
+    color: #212529;
+}
+
     @media (max-width: 992px) {
         .sidebar { transform: translateX(-100%); }
         .sidebar.open { transform: translateX(0); }
@@ -232,4 +254,6 @@
     .delay-3 { animation-delay: 0.3s; }
     .delay-4 { animation-delay: 0.4s; }
     .delay-5 { animation-delay: 0.5s; }
+    
+    .bg-purple { background-color: #a855f7 !important; }
 </style>

@@ -81,17 +81,12 @@
         font-size: 0.75rem;
         color: var(--secondary-color);
     }
-    
-    @media (max-width: 768px) {
-        .bugboard-footer .footer-content {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .bugboard-footer .footer-links {
-            justify-content: center;
-        }
+@media (min-width: 992px) {
+    .bugboard-footer {
+        margin-left: 260px;
+        width: calc(100% - 260px);
     }
+}
 </style>
 
 <script>

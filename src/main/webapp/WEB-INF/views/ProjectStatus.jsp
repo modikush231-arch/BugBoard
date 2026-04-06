@@ -143,24 +143,28 @@
 <script>
 function filterTable() {
     const input = document.getElementById("searchInput").value.toLowerCase();
-    const table = document.getElementById("statusTable");
-    const rows = table.getElementsByTagName("tr");
-
-    for (let i = 1; i < rows.length; i++) {
-        const rowText = rows[i].innerText.toLowerCase();
-        rows[i].style.display = rowText.indexOf(input) > -1 ? "" : "none";
-    }
+    const rows = document.querySelectorAll("#statusTable tbody tr");
+    rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none";
+    });
 }
 
-function editStatus(id, name, desc) {
+function editStatus(id, statusName, desc) {
     document.getElementById("statusId").value = id;
-    document.getElementById("statusName").value = name;
+    // For the select dropdown, set the selected option
+    const select = document.querySelector("select[name='status']");
+    for (let i = 0; i < select.options.length; i++) {
+        if (select.options[i].value === statusName) {
+            select.options[i].selected = true;
+            break;
+        }
+    }
     document.getElementById("statusDesc").value = desc;
 }
 
 function clearForm() {
     document.getElementById("statusId").value = "";
-    document.getElementById("statusName").value = "";
+    document.querySelector("select[name='status']").selectedIndex = 0;
     document.getElementById("statusDesc").value = "";
 }
 </script>

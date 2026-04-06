@@ -94,26 +94,16 @@
                         </td>
 
                         <!-- Status -->
-                        <td>
-
-                            <c:choose>
-
-                                <c:when test="${pu.assignStatus == 1}">
-                                    <span class="badge bg-success">
-                                        Assigned
-                                    </span>
-                                </c:when>
-
-                                <c:otherwise>
-                                    <span class="badge bg-danger">
-                                        Revoked
-                                    </span>
-                                </c:otherwise>
-
-                            </c:choose>
-
-                        </td>
-
+                       <td>
+    <c:choose>
+        <c:when test="${pu.assignStatus == 1}">
+            <span class="badge bg-success">Assigned</span>
+        </c:when>
+        <c:otherwise>
+            <span class="badge bg-danger">Revoked</span>
+        </c:otherwise>
+    </c:choose>
+</td>
                         <!-- Actions -->
                        <td>
                                     <div class="d-flex gap-2 justify-content">

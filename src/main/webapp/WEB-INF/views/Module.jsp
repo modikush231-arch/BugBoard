@@ -79,13 +79,27 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </td>
-								 <td class="text-white fw-medium">								
-								    <c:forEach var="statusEntity" items="${statusList}">								    
-								        <c:if test="${statusEntity.projectStatusId == module.status}">								        
-								            ${statusEntity.status}								            
-								        </c:if>								        
-								    </c:forEach>								
-								</td>
+                                <%-- 
+<td class="text-white fw-medium">
+    <c:choose>
+        <c:when test="${module.status == 'InProgress'}"><span class="badge bg-primary">In Progress</span></c:when>
+        <c:when test="${module.status == 'Completed'}"><span class="badge bg-success">Completed</span></c:when>
+        <c:when test="${module.status == 'PendingTesting'}"><span class="badge bg-warning text-dark">Pending Review</span></c:when>
+        <c:when test="${module.status == 'Assigned'}"><span class="badge bg-info">Assigned</span></c:when>
+        <c:when test="${module.status == 'Defect'}"><span class="badge bg-danger">Defect</span></c:when>
+        <c:otherwise><span class="badge bg-secondary">${module.status}</span></c:otherwise>
+    </c:choose>
+</td> --%>
+<td class="text-white fw-medium">
+    <c:choose>
+        <c:when test="${module.status == 'InProgress'}"><span class="badge bg-primary">In Progress</span></c:when>
+        <c:when test="${module.status == 'Completed'}"><span class="badge bg-success">Completed</span></c:when>
+        <c:when test="${module.status == 'PendingTesting'}"><span class="badge bg-warning text-dark">Pending Review</span></c:when>
+        <c:when test="${module.status == 'Assigned'}"><span class="badge bg-info">Assigned</span></c:when>
+        <c:when test="${module.status == 'Defect'}"><span class="badge bg-danger">Defect</span></c:when>
+        <c:otherwise><span class="badge bg-secondary">${module.status}</span></c:otherwise>
+    </c:choose>
+</td>
 
                                 <td>
                                     <div class="d-flex gap-2 justify-content">
