@@ -24,4 +24,9 @@ public interface TaskUserRepository extends JpaRepository<TaskUserEntity, Intege
 
     // ✅ NEW: Find top 10 most recently updated assignments
     List<TaskUserEntity> findTop10ByOrderByUpdatedDateDesc();
-}
+    
+   
+        List<TaskUserEntity> findByTaskIdAndUserId(Integer taskId, Integer userId);
+        // or if you have a method to delete directly:
+        void deleteByTaskIdAndUserId(Integer taskId, Integer userId);
+ }

@@ -47,87 +47,77 @@
                class="table table-hover mb-0"
                style="--bs-table-bg: transparent;">
 
-            <thead>
-                <tr>
-                    <th class="text-secondary">SrNo</th>
-                    <th class="text-secondary">Project</th>
-                    <th class="text-secondary">Project Manager</th>
-                    <th class="text-secondary">Assign Status</th>
-                    <th class="text-secondary">Actions</th>
-                </tr>
-            </thead>
+<!-- Inside the table, after the Project Manager column -->
+<thead>
+    <tr>
+        <th class="text-secondary">SrNo</th>
+        <th class="text-secondary">Project</th>
+        <th class="text-secondary">Project Manager</th>
+        <th class="text-secondary">Project Status</th>   <!-- new column -->
+        <th class="text-secondary">Assign Status</th>
+        <th class="text-secondary">Actions</th>
+    </tr>
+</thead>
+<tbody>
+    <c:forEach var="pu" items="${projectUserList}" varStatus="status">
+         <c:set var="projectEntity" value="" />
+         <c:forEach var="p" items="${projectList}">
+             <c:if test="${p.projectId == pu.projectId}">
+                 <c:set var="projectEntity" value="${p}" />
+             </c:if>
+         </c:forEach>
 
-            <tbody>
+         <!-- Resolve status name from projectStatusList using projectEntity.projectStatusId -->
+         <c:set var="statusName" value="-" />
+         <c:forEach var="ps" items="${projectStatusList}">
+             <c:if test="${ps.projectStatusId == projectEntity.projectStatusId}">
+                 <c:set var="statusName" value="${ps.status}" />
+             </c:if>
+         </c:forEach>
 
-                <c:forEach var="pu" items="${projectUserList}" varStatus="status">
-
-                    <tr>
-
-                        <td class="text-white">
-                            ${status.index + 1}
-                        </td>
-
-                        <!-- Project Name -->
-                        <td class="text-white fw-medium">
-
-                            <c:forEach var="projectEntity" items="${projectList}">
-
-                                <c:if test="${projectEntity.projectId == pu.projectId}">
-                                    ${projectEntity.title}
-                                </c:if>
-
-                            </c:forEach>
-
-                        </td>
-
-                        <!-- Manager Name -->
-                        <td class="text-white-50">
-
-                            <c:forEach var="userEntity" items="${userList}">
-
-                                <c:if test="${userEntity.userId == pu.userId}">
-                                    ${userEntity.first_name} ${userEntity.last_name}
-                                </c:if>
-
-                            </c:forEach>
-
-                        </td>
-
-                        <!-- Status -->
-                       <td>
-    <c:choose>
-        <c:when test="${pu.assignStatus == 1}">
-            <span class="badge bg-success">Assigned</span>
-        </c:when>
-        <c:otherwise>
-            <span class="badge bg-danger">Revoked</span>
-        </c:otherwise>
-    </c:choose>
-</td>
-                        <!-- Actions -->
-                       <td>
-                                    <div class="d-flex gap-2 justify-content">
-                                        <a href="viewProjectUser/${pu.projectUserId}" 
-                                           class="btn btn-sm btn-primary btn-custom">
-                                            <i class="bi bi-eye"></i> View
-                                        </a>
-                                        <a href="editProjectUser/${pu.projectUserId}" 
-                                           class="btn btn-sm btn-warning btn-custom">
-                                            <i class="bi bi-pencil"></i> Update
-                                        </a>
-                                        <a href="deleteProjectUser/${pu.projectUserId}" 
-                                           class="btn btn-sm btn-danger btn-custom"
-                                           onclick="return confirm('Are you sure you want to delete this task?')">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </a>
-                                    </div>
-                                </td>
-                    </tr>
-
-                </c:forEach>
-
-            </tbody>
-
+         <tr>
+             <td class="text-white">${status.index + 1}</td>
+             <td class="text-white fw-medium">${projectEntity.title}</td>
+             <td class="text-white-50">
+                 <c:forEach var="userEntity" items="${userList}">
+                     <c:if test="${userEntity.userId == pu.userId}">
+                         ${userEntity.first_name} ${userEntity.last_name}
+                     </c:if>
+                 </c:forEach>
+             </td>
+                   <td>
+                <span class="badge 
+                    <c:choose>
+                        <c:when test="${statusName == 'Lead'}">bg-purple</c:when>
+                        <c:when test="${statusName == 'NotStarted'}">bg-secondary</c:when>
+                        <c:when test="${statusName == 'InProgress'}">bg-primary</c:when>
+                        <c:when test="${statusName == 'Hold'}">bg-warning text-dark</c:when>
+                        <c:when test="${statusName == 'Completed'}">bg-success</c:when>
+                        <c:otherwise>bg-secondary</c:otherwise>
+                    </c:choose>
+                ">${statusName}</span>
+            </td>
+             <td>
+                 <c:choose>
+                     <c:when test="${pu.assignStatus == 1}">
+                         <span class="badge bg-success">Assigned</span>
+                     </c:when>
+                     <c:otherwise>
+                         <span class="badge bg-danger">Revoked</span>
+                     </c:otherwise>
+                 </c:choose>
+             </td>
+             <td>
+                 <!-- actions buttons (View, Update, Delete) unchanged -->
+                 <div class="d-flex gap-2">
+                     <a href="viewProjectUser/${pu.projectUserId}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i></a>
+                     <a href="editProjectUser/${pu.projectUserId}" class="btn btn-sm btn-warning"><i class="bi bi-pencil"></i></a>
+                     <a href="deleteProjectUser/${pu.projectUserId}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+                 </div>
+             </td>
+         </tr>
+    </c:forEach>
+</tbody>
         </table>
 
     </div>
@@ -174,24 +164,12 @@
                             Project
                         </label>
 
-                        <select name="projectId"
-                                class="form-select"
-                                required>
-
-                            <option value="">
-                                Select Project
-                            </option>
-
-                            <c:forEach var="project"
-                                       items="${projectList}">
-
-                                <option value="${project.projectId}">
-                                    ${project.title}
-                                </option>
-
-                            </c:forEach>
-
-                        </select>
+<select name="projectId" class="form-select" required>
+    <option value="">Select Project</option>
+    <c:forEach var="project" items="${unassignedProjects}">
+        <option value="${project.projectId}">${project.title}</option>
+    </c:forEach>
+</select>
 
                     </div>
 
