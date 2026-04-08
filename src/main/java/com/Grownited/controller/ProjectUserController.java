@@ -122,6 +122,22 @@ public class ProjectUserController {
      }
      return "redirect:/projectUserList";
  }
+ 
+ @PostMapping("/updateProjectUser")
+ public String updateProjectUser(@RequestParam("projectUserId") Integer projectUserId,
+                                  @RequestParam("projectId") Integer projectId,
+                                  @RequestParam("userId") Integer userId,
+                                  @RequestParam("assignStatus") Integer assignStatus) {
+     Optional<ProjectUserEntity> opt = projectUserRepository.findById(projectUserId);
+     if (opt.isPresent()) {
+         ProjectUserEntity pu = opt.get();
+         pu.setProjectId(projectId);
+         pu.setUserId(userId);
+         pu.setAssignStatus(assignStatus);
+         projectUserRepository.save(pu);
+     }
+     return "redirect:/projectUserList";
+ }
 
  @GetMapping("deleteProjectUser/{projectUserId}")
  public String deleteProjectUser(@PathVariable Integer projectUserId) {
