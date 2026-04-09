@@ -83,4 +83,8 @@
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
+<<<<<<< HEAD
 </style>
+=======
+</style>
+>>>>>>> 827b48daa80754df09f99e6a22587614bfbb207a
