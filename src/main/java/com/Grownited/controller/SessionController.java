@@ -28,11 +28,19 @@ public class SessionController {
     @Autowired
     PasswordEncoder passwordEncoder;
     
+<<<<<<< HEAD
  	@GetMapping("/")
     public String home() {
         return "redirect:/login";
     }
 	
+=======
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/login";
+    }
+    
+>>>>>>> 8bdec59 (Changes)
     @GetMapping("/login")
     public String openLoginPage() {
         return "Login";

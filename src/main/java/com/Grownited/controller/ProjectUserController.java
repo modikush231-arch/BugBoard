@@ -2,6 +2,7 @@ package com.Grownited.controller;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,8 @@ import com.Grownited.repository.ProjectUserRepository;
 import com.Grownited.repository.TaskRepository;
 import com.Grownited.repository.TaskUserRepository;
 import com.Grownited.repository.UserRepository;
+
+import jakarta.annotation.PostConstruct;
 
 @Controller
 public class ProjectUserController {
@@ -51,30 +54,65 @@ public class ProjectUserController {
     UserRepository userRepository;
 
     @GetMapping("/projectUserList")
-    public String projectUserList(Model model) {
-        List<ProjectUserEntity> projectUserList = projectUserRepository.findAll();
+    public String projectUserList(Model model,
+                                  @RequestParam(value = "search", required = false) String searchTerm,
+                                  @RequestParam(value = "page", defaultValue = "1") int page,
+                                  @RequestParam(value = "size", defaultValue = "10") int size) {
+        
+        List<ProjectUserEntity> allAssignments = projectUserRepository.findAll();
         List<ProjectEntity> allProjects = projectRepository.findAll();
+        List<UserEntity> allManagers = userRepository.findByRole("project_manager");
         
-        // Get IDs of projects that already have an assignment entry
-        List<Integer> assignedProjectIds = projectUserList.stream()
+        // Compute unassigned projects for modal
+        Set<Integer> assignedProjectIds = allAssignments.stream()
                 .map(ProjectUserEntity::getProjectId)
-                .distinct()
-                .collect(Collectors.toList());
-        
-        // Filter out already assigned projects
+                .collect(Collectors.toSet());
         List<ProjectEntity> unassignedProjects = allProjects.stream()
                 .filter(p -> !assignedProjectIds.contains(p.getProjectId()))
                 .collect(Collectors.toList());
         
-        model.addAttribute("projectUserList", projectUserList);
+        // Search filter (project title or manager name)
+        List<ProjectUserEntity> filtered = allAssignments;
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            String term = searchTerm.trim().toLowerCase();
+            filtered = allAssignments.stream()
+                    .filter(pu -> {
+                        String projectTitle = allProjects.stream()
+                                .filter(p -> p.getProjectId().equals(pu.getProjectId()))
+                                .map(ProjectEntity::getTitle)
+                                .findFirst().orElse("");
+                        String managerName = allManagers.stream()
+                                .filter(u -> u.getUserId().equals(pu.getUserId()))
+                                .map(u -> u.getFirst_name() + " " + u.getLast_name())
+                                .findFirst().orElse("");
+                        return projectTitle.toLowerCase().contains(term) ||
+                               managerName.toLowerCase().contains(term);
+                    })
+                    .collect(Collectors.toList());
+            model.addAttribute("searchTerm", searchTerm);
+        }
+        
+        // Pagination
+        int totalItems = filtered.size();
+        int totalPages = (int) Math.ceil((double) totalItems / size);
+        if (page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages;
+        int start = (page - 1) * size;
+        int end = Math.min(start + size, totalItems);
+        List<ProjectUserEntity> paginatedList = filtered.subList(start, end);
+        
+        model.addAttribute("projectUserList", paginatedList);
         model.addAttribute("projectList", allProjects);
-        model.addAttribute("unassignedProjects", unassignedProjects);   // for the assign modal
-        model.addAttribute("userList", userRepository.findByRole("project_manager"));
+        model.addAttribute("userList", allManagers);
+        model.addAttribute("unassignedProjects", unassignedProjects);
         model.addAttribute("projectStatusList", projectStatusRepositary.findAll());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalItems", totalItems);
         
         return "ProjectUser";
     }
-
     @PostMapping("/saveProjectUser")
     public String saveProjectUser(ProjectUserEntity projectUserEntity) {
         projectUserRepository.save(projectUserEntity);
@@ -159,5 +197,18 @@ public class ProjectUserController {
          projectUserRepository.delete(pu);
      }
      return "redirect:/projectUserList";
+ }
+ 
+ @PostConstruct
+ public void cleanOrphanedProjectUsers() {
+     List<ProjectUserEntity> all = projectUserRepository.findAll();
+     List<Integer> existingProjectIds = projectRepository.findAll().stream()
+             .map(ProjectEntity::getProjectId)
+             .collect(Collectors.toList());
+     for (ProjectUserEntity pu : all) {
+         if (!existingProjectIds.contains(pu.getProjectId())) {
+             projectUserRepository.delete(pu);
+         }
+     }
  }
 }

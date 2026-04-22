@@ -9,7 +9,7 @@
 
 <main class="main-content" id="mainContent">
     <div class="mb-4">
-        <a href="../moduleListPM" class="text-decoration-none text-secondary">
+        <a href="javascript:history.back()" class="text-decoration-none text-secondary">
             <i class="bi bi-arrow-left-circle me-1"></i> Back to Modules
         </a>
     </div>

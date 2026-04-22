@@ -12,7 +12,7 @@
     <!-- Header Section with Back Button and Title -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="../viewProjectPM/${project.projectId}" class="text-decoration-none text-secondary">
+            <a href="javascript:history.back()" class="text-decoration-none text-secondary">
                 <i class="bi bi-arrow-left-circle me-1"></i> Back to Project
             </a>
             <h1 class="h2 text-white mt-2 mb-0">

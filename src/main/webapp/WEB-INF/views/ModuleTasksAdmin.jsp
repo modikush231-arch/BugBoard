@@ -12,9 +12,9 @@
     <!-- Header Section with Back Button and Title -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <a href="../projectModulesAdmin/${module.projectId}" class="text-decoration-none text-secondary">
-                <i class="bi bi-arrow-left-circle me-1"></i> Back to Modules
-            </a>
+            <a href="javascript:history.back()" class="text-decoration-none text-secondary">
+    <i class="bi bi-arrow-left-circle me-1"></i> Back to Modules
+</a>
             <h1 class="h2 text-white mt-2 mb-0">
                 <i class="bi bi-list-task me-2" style="color: var(--primary-color);"></i>
                 Tasks

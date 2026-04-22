@@ -11,7 +11,7 @@
 <main class="main-content" id="mainContent">
     <!-- ✅ FIXED: Back button goes to projectListPM -->
     <div class="mb-4">
-        <a href="../projectList" class="text-decoration-none text-secondary">
+        <a href="javascript:history.back()" class="text-decoration-none text-secondary">
             <i class="bi bi-arrow-left-circle me-1"></i> Back to Projects
         </a>
     </div>
@@ -198,7 +198,7 @@
                 
                 <hr class="my-4 border-secondary">
                 <div class="d-flex justify-content-end gap-2">
-                    <a href="../editProjectAdmin/${project.projectId}" class="btn btn-warning">
+                    <a href="../editProject/${project.projectId}" class="btn btn-warning">
                         <i class="bi bi-pencil-square me-1"></i> Edit
                     </a>
                     <a href="../projectModulesAdmin/${project.projectId}" class="btn btn-info">

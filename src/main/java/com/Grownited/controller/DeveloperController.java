@@ -175,7 +175,30 @@ public class DeveloperController {
 	        }
 	    }
 	    
-	    // Recent tasks for table
+	    // NEW: Pending tasks list (only Assigned, InProgress, PendingTesting, Defect) - like Tester dashboard
+	    List<Map<String, Object>> pendingTaskList = new ArrayList<>();
+	    for (TaskEntity task : taskList) {
+	        TaskUserEntity tu = taskUserList.stream()
+	                .filter(t -> t.getTaskId().equals(task.getTaskId()))
+	                .findFirst().orElse(null);
+	        if (tu != null) {
+	            String status = tu.getTaskStatus();
+	            // Exclude Completed and Verified
+	            if (!"Completed".equals(status) && !"Verified".equals(status)) {
+	                Map<String, Object> taskMap = new HashMap<>();
+	                taskMap.put("taskId", task.getTaskId());
+	                taskMap.put("taskTitle", task.getTitle());
+	                ProjectEntity project = projectRepository.findById(task.getProjectId()).orElse(null);
+	                taskMap.put("projectName", project != null ? project.getTitle() : "N/A");
+	                taskMap.put("taskStatus", status);
+	                pendingTaskList.add(taskMap);
+	            }
+	        }
+	    }
+	    // Limit to 5 for display
+	    pendingTaskList = pendingTaskList.stream().limit(5).toList();
+	    
+	    // Recent tasks for table (kept for other uses, but not used in dashboard anymore)
 	    List<Map<String, Object>> recentTasks = new ArrayList<>();
 	    for (TaskEntity task : taskList.stream().limit(5).toList()) {
 	        Map<String, Object> taskMap = new HashMap<>();
@@ -245,6 +268,7 @@ public class DeveloperController {
 	    
 	    model.addAttribute("recentActivities", recentActivities);
 	    model.addAttribute("recentTasks", recentTasks);
+	    model.addAttribute("pendingTaskList", pendingTaskList);  // NEW
 	    model.addAttribute("recentDefects", recentDefects);
 	    
 	    return "DeveloperDashboard";

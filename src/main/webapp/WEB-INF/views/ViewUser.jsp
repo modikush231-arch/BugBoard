@@ -16,7 +16,7 @@
 
         <!-- Back button with icon -->
         <div class="mb-4">
-            <a href="../UserList" class="text-decoration-none text-secondary hover-text-primary">
+            <a href="javascript:history.back()" class="text-decoration-none text-secondary hover-text-primary">
                 <i class="bi bi-arrow-left-circle me-1"></i> Back to User List
             </a>
         </div>
@@ -148,7 +148,7 @@
 
                     <!-- Action buttons -->
                     <div class="d-flex justify-content-end gap-3">
-                        <a href="editUser/${user.userId}" class="btn btn-warning px-4">
+                        <a href="../editUser/${user.userId}" class="btn btn-warning px-4">
                             <i class="bi bi-pencil-square me-1"></i> Edit
                         </a>
                         <button class="btn btn-outline-danger px-4" onclick="confirmDelete()">

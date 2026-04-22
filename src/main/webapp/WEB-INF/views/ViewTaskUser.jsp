@@ -10,7 +10,7 @@
 <main class="main-content" id="mainContent">
 
 <div class="mb-4">
-<a href="../taskUserList" class="text-decoration-none text-secondary">
+<a href="javascript:history.back()" class="text-decoration-none text-secondary">
 <i class="bi bi-arrow-left-circle"></i> Back to Assignment List
 </a>
 </div>

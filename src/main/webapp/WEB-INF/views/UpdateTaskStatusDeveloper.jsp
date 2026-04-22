@@ -13,7 +13,7 @@
         <h1 class="h2 text-white mb-0">
             <i class="bi bi-pencil-square me-2" style="color: var(--primary-color);"></i>Update Task Status
         </h1>
-        <a href="../taskListDeveloper" class="btn btn-secondary">
+        <a href="javascript:history.back()" class="btn btn-secondary">
             <i class="bi bi-arrow-left me-2"></i>Back to Tasks
         </a>
     </div>

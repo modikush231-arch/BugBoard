@@ -185,7 +185,7 @@
             </div>
         </div>
 
-        <!-- Pending Tasks (was "My Recent Tasks") - CHANGED: only pending tasks shown -->
+        <!-- Pending Tasks - now uses pendingTaskList (filtered, only non-completed/verified) -->
         <div class="col-lg-5">
             <div class="glass-card h-100">
                 <div class="d-flex justify-content-between align-items-center p-4 border-bottom border-secondary">
@@ -208,33 +208,33 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <c:forEach items="${recentTasks}" var="task" varStatus="status">
-                                <!-- CHANGED: Only show tasks that are not Completed/Verified -->
-                                <c:if test="${status.index < 5 and task.taskStatus != 'Completed' and task.taskStatus != 'Verified'}">
-                                    <tr>
-                                        <td><div class="fw-medium text-white">${task.taskTitle}</div></td>
-                                        <td class="text-secondary">${task.projectName}</td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${task.taskStatus == 'Assigned'}">
-                                                    <span class="badge bg-info">Assigned</span>
-                                                </c:when>
-                                                <c:when test="${task.taskStatus == 'InProgress'}">
-                                                    <span class="badge bg-primary">In Progress</span>
-                                                </c:when>
-                                                <c:when test="${task.taskStatus == 'Defect'}">
-                                                    <span class="badge bg-danger">Defect</span>
-                                                </c:when>
-                                                <c:when test="${task.taskStatus == 'PendingTesting'}">
-                                                    <span class="badge bg-warning text-dark">Ready for testing</span>
-                                                </c:when>
-                                            </c:choose>
-                                        </td>
-                                        <td><a href="viewTaskDeveloper/${task.taskId}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> View</a></td>
-                                    </tr>
-                                </c:if>
+                            <c:forEach items="${pendingTaskList}" var="task" varStatus="status">
+                                <tr>
+                                    <td><div class="fw-medium text-white">${task.taskTitle}</div></td>
+                                    <td class="text-secondary">${task.projectName}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${task.taskStatus == 'Assigned'}">
+                                                <span class="badge bg-info">Assigned</span>
+                                            </c:when>
+                                            <c:when test="${task.taskStatus == 'InProgress'}">
+                                                <span class="badge bg-primary">In Progress</span>
+                                            </c:when>
+                                            <c:when test="${task.taskStatus == 'Defect'}">
+                                                <span class="badge bg-danger">Defect</span>
+                                            </c:when>
+                                            <c:when test="${task.taskStatus == 'PendingTesting'}">
+                                                <span class="badge bg-warning text-dark">Ready for testing</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge bg-secondary">${task.taskStatus}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td><a href="viewTaskDeveloper/${task.taskId}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> View</a></td>
+                                </tr>
                             </c:forEach>
-                            <c:if test="${empty recentTasks}">
+                            <c:if test="${empty pendingTaskList}">
                                 <tr>
                                     <td colspan="4" class="text-center text-secondary py-4">
                                         <i class="bi bi-inbox fs-1 d-block mb-2"></i>

@@ -9,7 +9,7 @@
 
 <main class="main-content" id="mainContenert">
     <div class="mb-4">
-        <a href="../taskList" class="text-decoration-none text-secondary">
+        <a href="javascript:history.back()" class="text-decoration-none text-secondary">
             <i class="bi bi-arrow-left-circle me-1"></i> Back to Tasks
         </a>
     </div>
@@ -108,7 +108,7 @@
                 
                 <hr class="my-4 border-secondary">
                 <div class="d-flex justify-content-end">
-                    <a href="editTask/${task.taskId}" class="btn btn-warning">
+                    <a href="../editTask/${task.taskId}" class="btn btn-warning">
                         <i class="bi bi-pencil-square me-1"></i> Edit
                     </a>
                 </div>

@@ -114,7 +114,7 @@ public class UserController {
 
                 // Calculate completed tasks count for developers and testers
                 long completedTasksCount = 0;
-                if ("developer".equals(user.getRole()) || "tester".equals(user.getRole())) {
+                if ("developer".equals(user.getRole())) {
                     List<TaskUserEntity> taskUsers = taskUserRepository.findByUserId(user.getUserId());
                     completedTasksCount = taskUsers.stream()
                             .filter(tu -> "Completed".equals(tu.getTaskStatus()))
@@ -122,6 +122,14 @@ public class UserController {
                 }
                 model.addAttribute("completedTasksCount", completedTasksCount);
                 
+                long verifiedTasksCount = 0;
+                if ("tester".equals(user.getRole())) {
+                    List<TaskUserEntity> taskUsers = taskUserRepository.findByUserId(user.getUserId());
+                    verifiedTasksCount = taskUsers.stream()
+                            .filter(tu -> "Verified".equals(tu.getTaskStatus()))
+                            .count();
+                }
+                model.addAttribute("verifiedTasksCount", verifiedTasksCount);
                 // ✅ Format dates in controller (not JSP)
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM yyyy");
                 String formattedCreatedDate = "";
@@ -176,6 +184,78 @@ public class UserController {
             return "ViewUser";
         }
 
+        return "redirect:/UserList";
+    }
+ // Edit User - Show form
+    @GetMapping("editUser/{userId}")
+    public String editUser(@PathVariable Integer userId, Model model) {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            model.addAttribute("user", user);
+            
+            UserDetailsEntity userDetails = userDetailsRepositary.findByUserId(userId.toString());
+            if (userDetails != null) {
+                model.addAttribute("userDetails", userDetails);
+            } else {
+                model.addAttribute("userDetails", new UserDetailsEntity());
+            }
+            return "EditUser";
+        }
+        return "redirect:/UserList";
+    }
+
+    // Update User (Admin)
+    @PostMapping("updateUser")
+    public String updateUser(@RequestParam("userId") Integer userId,
+                             @RequestParam("first_name") String firstName,
+                             @RequestParam("last_name") String lastName,
+                             @RequestParam("email") String email,
+                             @RequestParam("mobile") String mobile,
+                             @RequestParam("gender") String gender,
+                             @RequestParam("role") String role,
+                             @RequestParam("is_active") boolean isActive,
+                             @RequestParam(value = "qualification", required = false) String qualification,
+                             @RequestParam(value = "city", required = false) String city,
+                             @RequestParam(value = "state", required = false) String state,
+                             @RequestParam(value = "country", required = false) String country,
+                             @RequestParam(value = "profilePic", required = false) MultipartFile profilePic) {
+        
+        Optional<UserEntity> opt = userRepository.findById(userId);
+        if (opt.isPresent()) {
+            UserEntity user = opt.get();
+            user.setFirst_name(firstName);
+            user.setLast_name(lastName);
+            user.setEmail(email);
+            user.setMobile(mobile);
+            user.setGender(gender);
+            user.setRole(role);
+            user.setIs_active(isActive);
+            
+            // Update profile picture if new file provided
+            if (profilePic != null && !profilePic.isEmpty()) {
+                try {
+                    Map map = cloudinary.uploader().upload(profilePic.getBytes(), null);
+                    String profilePicURL = map.get("secure_url").toString();
+                    user.setProfilePicURL(profilePicURL);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            userRepository.save(user);
+            
+            // Update user details
+            UserDetailsEntity userDetails = userDetailsRepositary.findByUserId(userId.toString());
+            if (userDetails == null) {
+                userDetails = new UserDetailsEntity();
+                userDetails.setUserId(userId.toString());
+            }
+            userDetails.setQualification(qualification);
+            userDetails.setCity(city);
+            userDetails.setState(state);
+            userDetails.setCountry(country);
+            userDetailsRepositary.save(userDetails);
+        }
         return "redirect:/UserList";
     }
     
@@ -253,4 +333,5 @@ public class UserController {
         
         return "redirect:/profile";
     }
+    
 }

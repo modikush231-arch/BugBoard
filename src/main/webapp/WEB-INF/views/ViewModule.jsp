@@ -9,7 +9,7 @@
 
 <main class="main-content" id="mainContent">
     <div class="mb-4">
-        <a href="../moduleList" class="text-decoration-none text-secondary">
+        <a href="javascript:history.back()" class="text-decoration-none text-secondary">
             <i class="bi bi-arrow-left-circle me-1"></i> Back to Modules
         </a>
     </div>
@@ -59,7 +59,7 @@
                         </p>
                     </div>
                     
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="text-secondary">Description</label>
                         <p class="text-white-50">${module.description}</p>
                     </div>

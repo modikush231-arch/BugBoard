@@ -194,7 +194,7 @@
                                 </c:choose>
                             </td>
                             <td class="text-white">
-                                <a href="moduleTasks/${module.moduleId}" class="btn btn-sm btn-info">
+                                <a href="moduleTasksAdmin/${module.moduleId}" class="btn btn-sm btn-info">
                                     <i class="bi bi-list-task"></i> ${module.taskCount != null ? module.taskCount : 0} Tasks
                                 </a>
                             </td>

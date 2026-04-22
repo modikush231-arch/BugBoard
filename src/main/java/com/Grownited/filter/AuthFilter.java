@@ -45,7 +45,7 @@ public class AuthFilter implements Filter{
 		else {
 			
 			HttpSession session= req.getSession();
-			UserEntity user = (UserEntity) session.getAttribute("user");
+			UserEntity user = (UserEntity) session.getAttribute("dbuser");
 			
 			if(user==null) {
 				res.sendRedirect("/login");

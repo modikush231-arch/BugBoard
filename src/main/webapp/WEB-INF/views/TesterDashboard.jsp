@@ -220,7 +220,7 @@
                                          <td><div class="fw-medium text-white">${task.taskTitle}</div></td>
                                          <td class="text-secondary">${task.projectName}</td>
                                          <td class="text-secondary">${task.developerName}</td>
-                                         <td><a href="viewTestTask/${task.taskUserId}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> Test</a></td>
+                                         <td><a href="viewTaskTester/${task.taskUserId}" class="btn btn-sm btn-primary"><i class="bi bi-eye"></i> Test</a></td>
                                      </tr>
                                  </c:if>
                             </c:forEach>

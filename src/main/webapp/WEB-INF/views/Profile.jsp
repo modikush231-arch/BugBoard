@@ -344,10 +344,16 @@
                                         <td class="text-white">${formattedCreatedDate}</td>
                                     </tr>
                                 </c:if>
-                                <c:if test="${user.role == 'developer' or user.role == 'tester'}">
+                                <c:if test="${user.role == 'developer'}">
                                      <tr>
                                         <td class="text-secondary"><i class="bi bi-check-circle me-2"></i>Tasks Completed</td>
                                         <td class="text-white">${completedTasksCount} tasks</td>
+                                     </tr>
+                                </c:if>
+                                 <c:if test="${user.role == 'tester'}">
+                                     <tr>
+                                        <td class="text-secondary"><i class="bi bi-check-circle me-2"></i>Tasks Verified</td>
+                                        <td class="text-white">${verifiedTasksCount} tasks</td>
                                      </tr>
                                 </c:if>
                                 <c:if test="${user.role == 'project_manager'}">

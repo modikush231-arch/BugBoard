@@ -12,7 +12,7 @@
 <main class="main-content" id="mainContent">
     <!-- Back button -->
     <div class="mb-4">
-        <a href="../taskTester" class="text-decoration-none text-secondary hover-text-primary">
+        <a href="javascript:history.back()" class="text-decoration-none text-secondary hover-text-primary">
             <i class="bi bi-arrow-left-circle me-1"></i> Back to Test Tasks
         </a>
     </div>
