@@ -123,19 +123,8 @@
                 </thead>
                 <tbody>
                     <c:forEach var="tu" items="${taskUserList}" varStatus="status">
-                        <c:set var="currentTask" value="" />
-                        <c:forEach var="task" items="${taskList}">
-                            <c:if test="${task.taskId == tu.taskId}">
-                                <c:set var="currentTask" value="${task}" />
-                            </c:if>
-                        </c:forEach>
-                        
-                        <c:set var="currentProject" value="" />
-                        <c:forEach var="project" items="${projectList}">
-                            <c:if test="${project.projectId == currentTask.projectId}">
-                                <c:set var="currentProject" value="${project}" />
-                            </c:if>
-                        </c:forEach>
+                        <c:set var="currentTask" value="${taskMap[tu.taskId]}" />
+                        <c:set var="currentProject" value="${not empty currentTask ? projectMap[currentTask.projectId] : null}" />
                         
                         <%-- Get developer name from developerAssignmentMap --%>
                         <c:set var="developerName" value="Not assigned" />
@@ -150,8 +139,18 @@
                         
                         <tr>
                             <td class="text-white">${status.index + 1 + (currentPage-1)*pageSize}</td>
-                            <td class="text-white fw-medium">${currentTask.title}</td>
-                            <td class="text-white">${currentProject.title}</td>
+                            <td class="text-white fw-medium">
+                                <c:choose>
+                                    <c:when test="${not empty currentTask}">${currentTask.title}</c:when>
+                                    <c:otherwise>-</c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="text-white">
+                                <c:choose>
+                                    <c:when test="${not empty currentProject}">${currentProject.title}</c:when>
+                                    <c:otherwise>-</c:otherwise>
+                                </c:choose>
+                            </td>
                             <td class="text-white">
                                 <i class="bi bi-person-badge me-1 text-secondary"></i>
                                 ${developerName}

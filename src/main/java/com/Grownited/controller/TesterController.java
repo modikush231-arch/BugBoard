@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -290,6 +291,16 @@ public class TesterController {
         // Get ALL tester's assignments
         List<TaskUserEntity> allTesterAssignments = taskUserRepository.findByUserId(testerId);
         
+        // Filter out orphaned assignments whose parent task or project was deleted
+        java.util.Set<Integer> validProjectIds = projectRepository.findAll().stream()
+                .map(p -> p.getProjectId()).collect(java.util.stream.Collectors.toSet());
+        java.util.Set<Integer> validTaskIds = taskRepository.findAll().stream()
+                .filter(t -> validProjectIds.contains(t.getProjectId()))
+                .map(t -> t.getTaskId()).collect(java.util.stream.Collectors.toSet());
+        allTesterAssignments = allTesterAssignments.stream()
+                .filter(tu -> validTaskIds.contains(tu.getTaskId()))
+                .collect(java.util.stream.Collectors.toList());
+        
         // Get all task IDs from tester's assignments
         List<Integer> taskIds = allTesterAssignments.stream()
                 .map(TaskUserEntity::getTaskId)
@@ -341,6 +352,10 @@ public class TesterController {
         // Get tasks
         List<TaskEntity> taskList = taskRepository.findByTaskIdIn(currentTaskIds);
         
+        // Build taskMap for O(1) lookup in JSP (avoids nested forEach + String init bug)
+        Map<Integer, TaskEntity> taskMap = taskList.stream()
+                .collect(Collectors.toMap(TaskEntity::getTaskId, t -> t));
+        
         // Get project IDs
         List<Integer> projectIds = taskList.stream()
                 .map(TaskEntity::getProjectId)
@@ -348,6 +363,10 @@ public class TesterController {
                 .toList();
         
         List<ProjectEntity> projectList = projectRepository.findByProjectIdIn(projectIds);
+        
+        // Build projectMap for O(1) lookup in JSP
+        Map<Integer, ProjectEntity> projectMap = projectList.stream()
+                .collect(Collectors.toMap(ProjectEntity::getProjectId, p -> p));
         List<UserEntity> allUsers = userRepository.findAll();
         
         // Format dates
@@ -377,7 +396,9 @@ public class TesterController {
         model.addAttribute("taskUserList", taskUserList);
         model.addAttribute("developerAssignmentMap", developerAssignmentMap);
         model.addAttribute("taskList", taskList);
+        model.addAttribute("taskMap", taskMap);
         model.addAttribute("projectList", projectList);
+        model.addAttribute("projectMap", projectMap);
         model.addAttribute("allUsers", allUsers);
         model.addAttribute("formattedDates", formattedDates);
         model.addAttribute("totalCount", totalCount);

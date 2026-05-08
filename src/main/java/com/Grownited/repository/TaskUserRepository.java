@@ -16,6 +16,10 @@ public interface TaskUserRepository extends JpaRepository<TaskUserEntity, Intege
     @Modifying
     void deleteByTaskId(Integer taskId);
 
+    @Transactional
+    @Modifying
+    void deleteByTaskIdIn(List<Integer> taskIds);
+
     List<TaskUserEntity> findByUserId(Integer userId);
 
     List<TaskUserEntity> findByTaskIdIn(List<Integer> taskIds);

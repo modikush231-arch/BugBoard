@@ -21,7 +21,10 @@ import com.Grownited.entity.TaskEntity;
 import com.Grownited.repository.ModuleRepositary;
 import com.Grownited.repository.ProjectRepository;
 import com.Grownited.repository.ProjectStatusRepositary;
+import com.Grownited.repository.ProjectUserRepository;
 import com.Grownited.repository.TaskRepository;
+import com.Grownited.repository.TaskUserRepository;
+import jakarta.transaction.Transactional;
 
 @Controller
 public class ProjectController {
@@ -37,6 +40,12 @@ public class ProjectController {
 
     @Autowired
     TaskRepository taskRepository;
+
+    @Autowired
+    TaskUserRepository taskUserRepository;
+
+    @Autowired
+    ProjectUserRepository projectUserRepository;
 
     @GetMapping("projectList")
     public String projectList(Model model,
@@ -166,9 +175,34 @@ public class ProjectController {
     }
 
 
+    @Transactional
     @GetMapping("deleteProject/{projectId}")
     public String deleteProject(@PathVariable Integer projectId) {
+
+        // 1. Get all tasks belonging to this project
+        List<TaskEntity> tasks = taskRepository.findByProjectId(projectId);
+
+        // 2. Delete all task assignments (task_user) for those tasks
+        if (!tasks.isEmpty()) {
+            List<Integer> taskIds = tasks.stream()
+                    .map(TaskEntity::getTaskId)
+                    .collect(Collectors.toList());
+            taskUserRepository.deleteByTaskIdIn(taskIds);
+        }
+
+        // 3. Delete all tasks of this project
+        taskRepository.deleteAll(tasks);
+
+        // 4. Delete all modules of this project
+        List<ModuleEntity> modules = moduleRepositary.findByProjectId(projectId);
+        moduleRepositary.deleteAll(modules);
+
+        // 5. Delete all project-user assignments
+        projectUserRepository.deleteByProjectId(projectId);
+
+        // 6. Finally delete the project itself
         projectRepository.deleteById(projectId);
+
         return "redirect:/projectList";
     }
     
@@ -268,4 +302,40 @@ public class ProjectController {
         }
         return "redirect:/moduleList";
     }
+
+    /**
+     * One-time cleanup: removes orphaned task_user and task rows
+     * whose parent project no longer exists.
+     * Safe to call multiple times (idempotent).
+     */
+    @Transactional
+    @GetMapping("cleanupOrphanedTasks")
+    public String cleanupOrphanedTasks() {
+        // Collect all valid project IDs still in the DB
+        List<Integer> validProjectIds = projectRepository.findAll()
+                .stream()
+                .map(p -> p.getProjectId())
+                .collect(Collectors.toList());
+
+        // Find tasks whose projectId is not in the valid list
+        List<TaskEntity> allTasks = taskRepository.findAll();
+        List<TaskEntity> orphanedTasks = allTasks.stream()
+                .filter(t -> !validProjectIds.contains(t.getProjectId()))
+                .collect(Collectors.toList());
+
+        if (!orphanedTasks.isEmpty()) {
+            List<Integer> orphanedTaskIds = orphanedTasks.stream()
+                    .map(TaskEntity::getTaskId)
+                    .collect(Collectors.toList());
+
+            // Delete task_user rows for orphaned tasks
+            taskUserRepository.deleteByTaskIdIn(orphanedTaskIds);
+
+            // Delete the orphaned tasks themselves
+            taskRepository.deleteAll(orphanedTasks);
+        }
+
+        return "redirect:/projectList";
+    }
+
 }

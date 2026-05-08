@@ -24,6 +24,7 @@ import com.Grownited.repository.ProjectStatusRepositary;
 import com.Grownited.repository.ProjectUserRepository;
 import com.Grownited.repository.TaskRepository;
 import com.Grownited.repository.TaskUserRepository;
+import com.Grownited.service.StatusSyncService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -47,6 +48,9 @@ public class ModuleController {
     
     @Autowired
     private ProjectUserRepository projectUserRepository;
+
+    @Autowired
+    private StatusSyncService statusSyncService;
 
     @GetMapping("moduleList")
     public String moduleList(Model model,
@@ -201,6 +205,9 @@ public class ModuleController {
             module.setEstimatedHours(estimatedHours);
 
             moduleRepositary.save(module);
+
+            // Propagate the manual status change up to the project
+            statusSyncService.updateProjectStatus(module.getProjectId());
         }
 
         return "redirect:/moduleList?success=Module updated successfully";
@@ -210,23 +217,32 @@ public class ModuleController {
     @GetMapping("deleteModule/{moduleId}")
     public String deleteModule(@PathVariable Integer moduleId,
                                @RequestParam(value = "projectId", required = false) Integer projectId) {
-        // 1. Get all tasks belonging to this module
+        // 1. Get the module to know which project it belongs to
+        ModuleEntity module = moduleRepositary.findById(moduleId).orElse(null);
+        Integer resolvedProjectId = projectId != null ? projectId
+                : (module != null ? module.getProjectId() : null);
+
+        // 2. Get all tasks belonging to this module
         List<TaskEntity> tasks = taskRepository.findByModuleId(moduleId);
-        
-        // 2. For each task, delete all task assignments (TaskUserEntity)
-        for (TaskEntity task : tasks) {
-            taskUserRepository.deleteByTaskId(task.getTaskId());
+
+        // 3. Bulk-delete all task assignments for those tasks
+        if (!tasks.isEmpty()) {
+            List<Integer> taskIds = tasks.stream()
+                    .map(TaskEntity::getTaskId)
+                    .collect(Collectors.toList());
+            taskUserRepository.deleteByTaskIdIn(taskIds);
         }
-        
-        // 3. Delete all tasks of the module
+
+        // 4. Delete all tasks of the module
         taskRepository.deleteAll(tasks);
-        
-        // 4. Delete the module itself
+
+        // 5. Delete the module itself
         moduleRepositary.deleteById(moduleId);
-        
-        // 5. Redirect back to the project modules page if projectId is provided, else to module list
-        if (projectId != null) {
-            return "redirect:/projectModulesAdmin/" + projectId;
+
+        // 6. Recalculate project status now that this module is gone
+        if (resolvedProjectId != null) {
+            statusSyncService.updateProjectStatus(resolvedProjectId);
+            return "redirect:/projectModulesAdmin/" + resolvedProjectId;
         }
         return "redirect:/moduleList";
     }

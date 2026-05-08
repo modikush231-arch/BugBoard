@@ -644,8 +644,8 @@ public class ProjectManagerController {
         
         // Update module status after adding a new task
         updateModuleStatus(taskEntity.getModuleId());
-        // Optionally update project status
-        // updateProjectStatus(taskEntity.getProjectId());
+
+        updateProjectStatus(taskEntity.getProjectId());
         
         return "redirect:/taskListPM?success=Task created successfully";
     }
@@ -752,8 +752,8 @@ public class ProjectManagerController {
             
             // Update module status after task status change
             updateModuleStatus(task.getModuleId());
-            // Optionally update project status
-            // updateProjectStatus(task.getProjectId());
+    
+            updateProjectStatus(task.getProjectId());
         }
         return "redirect:/taskListPM?success=Task updated successfully";
     }
@@ -783,8 +783,8 @@ public class ProjectManagerController {
                 taskRepository.delete(task);
                 // Update module status after task deletion
                 updateModuleStatus(task.getModuleId());
-                // Optionally update project status
-                // updateProjectStatus(task.getProjectId());
+        
+                updateProjectStatus(task.getProjectId());
             }
         }
         return "redirect:/taskListPM?success=Task deleted successfully";
@@ -1156,78 +1156,26 @@ public class ProjectManagerController {
     }
     
     /**
-     * Reusable method to sync the overall task status and module status for a given task.
+     * Delegates to StatusSyncService — keeps task, module, and project status
+     * all in sync in one consistent place.
      */
     private void syncTaskAndModuleStatus(Integer taskId) {
-        TaskEntity task = taskRepository.findById(taskId).orElse(null);
-        if (task == null) return;
-        List<TaskUserEntity> assignments = taskUserRepository.findByTaskId(taskId);
-        TaskUserEntity dev = assignments.stream()
-                .filter(tu -> isDeveloper(tu.getUserId()))
-                .findFirst().orElse(null);
-        TaskUserEntity tester = assignments.stream()
-                .filter(tu -> isTester(tu.getUserId()))
-                .findFirst().orElse(null);
-        String combinedStatus = getCombinedTaskStatus(dev, tester);
-        task.setStatus(combinedStatus);
-        taskRepository.save(task);
-        updateModuleStatus(task.getModuleId());
-        // ✅ AUTO‑UPDATE PROJECT STATUS
-        updateProjectStatus(task.getProjectId());
+        statusSyncService.syncTaskAndModuleStatus(taskId);
     }
-    
+
     /**
-     * Recalculates and updates the status of a module based on its tasks.
+     * Delegates to StatusSyncService so module AND project status are always
+     * recalculated together.
      */
     private void updateModuleStatus(Integer moduleId) {
-        List<TaskEntity> tasks = taskRepository.findByModuleId(moduleId);
-        if (tasks.isEmpty()) return;
-        
-        boolean allCompleted = tasks.stream().allMatch(t -> "Completed".equals(t.getStatus()));
-        boolean anyDefect = tasks.stream().anyMatch(t -> "Defect".equals(t.getStatus()));
-        boolean anyInProgress = tasks.stream().anyMatch(t -> "InProgress".equals(t.getStatus()));
-        boolean anyPendingTesting = tasks.stream().anyMatch(t -> "PendingTesting".equals(t.getStatus()));
-        
-        String moduleStatus;
-        if (allCompleted) {
-            moduleStatus = "Completed";
-        } else if (anyDefect) {
-            moduleStatus = "Defect";
-        } else if (anyInProgress) {
-            moduleStatus = "InProgress";
-        } else if (anyPendingTesting) {
-            moduleStatus = "PendingTesting";
-        } else {
-            moduleStatus = "Assigned";
-        }
-        
-        ModuleEntity module = moduleRepositary.findById(moduleId).orElse(null);
-        if (module != null && !moduleStatus.equals(module.getStatus())) {
-            module.setStatus(moduleStatus);
-            moduleRepositary.save(module);
-        }
+        statusSyncService.updateModuleStatus(moduleId);
     }
-    
+
     /**
-     * Optional: updates project status based on its modules.
-     * You can call this after module status changes.
+     * Delegates to StatusSyncService.
      */
     private void updateProjectStatus(Integer projectId) {
-        List<ModuleEntity> modules = moduleRepositary.findByProjectId(projectId);
-        if (modules.isEmpty()) return;
-        boolean allCompleted = modules.stream().allMatch(m -> "Completed".equals(m.getStatus()));
-        boolean anyDefect = modules.stream().anyMatch(m -> "Defect".equals(m.getStatus()));
-        boolean anyInProgress = modules.stream().anyMatch(m -> "InProgress".equals(m.getStatus()));
-        int newStatusId;
-        if (allCompleted) newStatusId = 5;
-        else if (anyDefect) newStatusId = 3;
-        else if (anyInProgress) newStatusId = 4;
-        else newStatusId = 2;
-        ProjectEntity project = projectRepository.findById(projectId).orElse(null);
-        if (project != null && project.getProjectStatusId() != newStatusId) {
-            project.setProjectStatusId(newStatusId);
-            projectRepository.save(project);
-        }
+        statusSyncService.updateProjectStatus(projectId);
     }
 
    

@@ -23,6 +23,7 @@ import com.Grownited.repository.ProjectRepository;
 import com.Grownited.repository.ProjectStatusRepositary;
 import com.Grownited.repository.TaskRepository;
 import com.Grownited.repository.TaskUserRepository;
+import com.Grownited.service.StatusSyncService;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -43,6 +44,9 @@ public class TaskController {
     
     @Autowired
     TaskUserRepository taskUserRepository;
+
+    @Autowired
+    StatusSyncService statusSyncService;
 
     @GetMapping("taskList")
     public String taskList(Model model,
@@ -223,33 +227,24 @@ public class TaskController {
     
     @GetMapping("deleteTask/{taskId}")
     public String deleteTask(@PathVariable Integer taskId) {
-        // First delete task assignments
-        taskUserRepository.deleteByTaskId(taskId);
-        // Then delete task
-        taskRepository.deleteById(taskId);
+        TaskEntity task = taskRepository.findById(taskId).orElse(null);
+        if (task != null) {
+            Integer moduleId  = task.getModuleId();
+            // Delete task assignments first
+            taskUserRepository.deleteByTaskId(taskId);
+            // Delete the task
+            taskRepository.deleteById(taskId);
+            // Recalculate module and project status now that this task is gone
+            statusSyncService.updateModuleStatus(moduleId);
+        }
         return "redirect:/taskList";
     }
     
+    /**
+     * Delegates to StatusSyncService so that module AND project status are both
+     * recalculated and saved in one place.
+     */
     private void updateModuleStatus(Integer moduleId) {
-        List<TaskEntity> tasks = taskRepository.findByModuleId(moduleId);
-        if (tasks.isEmpty()) return;
-        
-        boolean allCompleted = tasks.stream().allMatch(t -> "Completed".equals(t.getStatus()));
-        boolean anyDefect = tasks.stream().anyMatch(t -> "Defect".equals(t.getStatus()));
-        boolean anyInProgress = tasks.stream().anyMatch(t -> "InProgress".equals(t.getStatus()));
-        boolean anyPendingTesting = tasks.stream().anyMatch(t -> "PendingTesting".equals(t.getStatus()));
-        
-        String moduleStatus;
-        if (allCompleted) moduleStatus = "Completed";
-        else if (anyDefect) moduleStatus = "Defect";
-        else if (anyInProgress) moduleStatus = "InProgress";
-        else if (anyPendingTesting) moduleStatus = "PendingTesting";
-        else moduleStatus = "Assigned";
-        
-        ModuleEntity module = moduleRepositary.findById(moduleId).orElse(null);
-        if (module != null && !moduleStatus.equals(module.getStatus())) {
-            module.setStatus(moduleStatus);
-            moduleRepositary.save(module);
-        }
+        statusSyncService.updateModuleStatus(moduleId);
     }
 }

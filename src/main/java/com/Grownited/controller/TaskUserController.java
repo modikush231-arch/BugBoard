@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.Grownited.entity.*;
 import com.Grownited.repository.*;
+import com.Grownited.service.StatusSyncService;
 
 @Controller
 public class TaskUserController {
@@ -22,6 +23,9 @@ public class TaskUserController {
 
     @Autowired
     TaskRepository taskRepository;
+
+    @Autowired
+    StatusSyncService statusSyncService;
 
     // List all task assignments with pagination, search, and modal data
     @GetMapping("taskUserList")
@@ -207,7 +211,10 @@ public class TaskUserController {
     // Delete all assignments for a task
     @GetMapping("deleteTaskUser/{taskId}")
     public String deleteTaskUser(@PathVariable Integer taskId) {
+        // Delete all assignments for this task
         taskUserRepository.deleteByTaskId(taskId);
+        // Recalculate task → module → project status now that assignments are gone
+        statusSyncService.syncTaskAndModuleStatus(taskId);
         return "redirect:/taskUserList";
     }
 }

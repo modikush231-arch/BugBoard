@@ -291,6 +291,16 @@ public class DeveloperController {
 	    // Get all task-user mapping for this developer
 	    List<TaskUserEntity> allTaskUsers = taskUserRepository.findByUserId(devId);
 
+	    // Filter out orphaned assignments whose parent task or project was deleted
+	    java.util.Set<Integer> validProjectIds = projectRepository.findAll().stream()
+	            .map(p -> p.getProjectId()).collect(java.util.stream.Collectors.toSet());
+	    java.util.Set<Integer> validTaskIds = taskRepository.findAll().stream()
+	            .filter(t -> validProjectIds.contains(t.getProjectId()))
+	            .map(t -> t.getTaskId()).collect(java.util.stream.Collectors.toSet());
+	    allTaskUsers = allTaskUsers.stream()
+	            .filter(tu -> validTaskIds.contains(tu.getTaskId()))
+	            .collect(java.util.stream.Collectors.toList());
+
 	    // Apply status filter
 	    List<TaskUserEntity> filteredTasks = allTaskUsers;
 	    if (!"all".equals(statusFilter) && statusFilter != null) {
